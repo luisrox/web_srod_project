@@ -1,3 +1,37 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 @source "../";
+
+/* Puente tokens → Tailwind. `inline` hace que las utilidades resuelvan la
+   variable de tokens.css en lugar de duplicar el valor. */
+@theme inline {
+  --color-bg: var(--srod-color-bg);
+  --color-surface: var(--srod-color-surface);
+  --color-ink: var(--srod-color-ink);
+  --color-muted: var(--srod-color-muted);
+  --color-line: var(--srod-color-line);
+  --color-accent: var(--srod-color-accent);
+  --color-accent-ink: var(--srod-color-accent-ink);
+
+  --font-display: var(--srod-font-display);
+  --font-body: var(--srod-font-body);
+
+  --radius-gallery: var(--srod-radius-gallery);
+
+  --shadow-gallery: var(--srod-shadow-gallery);
+
+  --spacing-section: var(--srod-space-section);
+  --spacing-section-sm: var(--srod-space-section-sm);
+}
+
+@layer base {
+  html {
+    background-color: var(--srod-color-bg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--srod-color-accent);
+    outline-offset: 3px;
+  }
+}

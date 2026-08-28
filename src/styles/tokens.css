@@ -1,0 +1,22 @@
+/* Espejo CSS de src/styles/tokens.ts. No editar uno sin el otro:
+   tokens.test.ts falla si las dos listas se separan. */
+
+:root {
+  --srod-color-bg: #f7f5f2;
+  --srod-color-surface: #ffffff;
+  --srod-color-ink: #171512;
+  --srod-color-muted: #5e574e;
+  --srod-color-line: #e6e1d9;
+  --srod-color-accent: #b23d18;
+  --srod-color-accent-ink: #ffffff;
+
+  --srod-font-display: var(--font-srod-display), "Trebuchet MS", system-ui, sans-serif;
+  --srod-font-body: var(--font-srod-body), system-ui, -apple-system, sans-serif;
+
+  --srod-radius-gallery: 1rem;
+
+  --srod-shadow-gallery: 0 1px 2px rgba(23, 21, 18, 0.05), 0 18px 40px -24px rgba(23, 21, 18, 0.28);
+
+  --srod-space-section: clamp(4rem, 8vw, 7rem);
+  --srod-space-section-sm: clamp(2.5rem, 5vw, 4rem);
+}
