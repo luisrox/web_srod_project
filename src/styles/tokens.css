@@ -2,21 +2,27 @@
    tokens.test.ts falla si las dos listas se separan. */
 
 :root {
-  --srod-color-bg: #f7f5f2;
-  --srod-color-surface: #ffffff;
-  --srod-color-ink: #171512;
-  --srod-color-muted: #5e574e;
-  --srod-color-line: #e6e1d9;
-  --srod-color-accent: #b23d18;
-  --srod-color-accent-ink: #ffffff;
+  --srod-color-bg: #1c120c;
+  --srod-color-surface: #f3eee6;
+  --srod-color-ink: #f5e6d0;
+  --srod-color-muted: #cbb59c;
+  --srod-color-line: #4a3428;
+  --srod-color-accent: #e3924f;
+  --srod-color-accent-ink: #1c120c;
+  --srod-color-on-surface: #171512;
+  --srod-color-on-surface-muted: #5e574e;
+  --srod-color-on-surface-line: #e6e1d9;
+  --srod-color-on-surface-accent: #b23d18;
+  --srod-color-on-surface-accent-ink: #ffffff;
+  --srod-color-glow: #f0b56a;
 
   --srod-font-display: var(--font-srod-display), "Trebuchet MS", system-ui, sans-serif;
   --srod-font-body: var(--font-srod-body), system-ui, -apple-system, sans-serif;
 
   --srod-radius-gallery: 1rem;
 
-  --srod-shadow-gallery: 0 1px 2px rgba(23, 21, 18, 0.05), 0 18px 40px -24px rgba(23, 21, 18, 0.28);
+  --srod-shadow-gallery: 0 1px 2px rgba(0, 0, 0, 0.28), 0 22px 48px -18px rgba(0, 0, 0, 0.55), 0 0 40px -12px rgba(227, 146, 79, 0.22);
 
-  --srod-space-section: clamp(4rem, 8vw, 7rem);
-  --srod-space-section-sm: clamp(2.5rem, 5vw, 4rem);
+  --srod-space-section: clamp(3rem, 6vw, 5rem);
+  --srod-space-section-sm: clamp(1.5rem, 3.2vw, 2.5rem);
 }

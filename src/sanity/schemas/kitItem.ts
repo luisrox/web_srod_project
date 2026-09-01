@@ -34,6 +34,12 @@ export const kitItemType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "shopUrl",
+      title: "URL de compra",
+      description: "Amazon u otra tienda. Opcional.",
+      type: "url",
+    }),
+    defineField({
       name: "order",
       title: "Orden",
       type: "number",

@@ -12,7 +12,7 @@ test.describe("aceptación SPEC §11", () => {
       page.getByRole("heading", { level: 1, name: "Srod Almenara" }),
     ).toBeVisible();
     await expect(
-      page.getByText("Un DP bien geek, con el proceso a la vista"),
+      page.getByText("Un DP bien geek que hace videos en YouTube"),
     ).toBeVisible();
   });
 
@@ -43,12 +43,12 @@ test.describe("aceptación SPEC §11", () => {
 
     const list = page.locator('[data-ui="kit-list"]');
     await expect(list.getByRole("heading", { name: "Sony FX3" })).toBeVisible();
-    await expect(
-      list.getByText(/Es la cámara con la que resuelvo/i),
-    ).toBeVisible();
+    await expect(list.getByText(/Mi cámara principal/i)).toBeVisible();
   });
 
-  test("YouTube e Instagram son visibles en el header", async ({ page }) => {
+  test("YouTube, Instagram y TikTok son visibles en el header", async ({
+    page,
+  }) => {
     await page.goto("/");
 
     await expect(
@@ -57,6 +57,7 @@ test.describe("aceptación SPEC §11", () => {
     await expect(
       page.getByRole("link", { name: /perfil de instagram/i }),
     ).toBeVisible();
+    await expect(page.getByRole("link", { name: /tiktok/i })).toBeVisible();
   });
 
   test("/contacto envía el form con honeypot vacío (API mockeada)", async ({

@@ -1,14 +1,17 @@
 import {
   kitItemSchema,
+  pickItemSchema,
   projectSchema,
   siteSettingsSchema,
   type KitItem,
+  type PickItem,
   type Project,
   type SiteSettings,
 } from "@/domain/schemas";
 
 import {
   kitItemFixtures,
+  pickItemFixtures,
   projectFixtures,
   siteSettingsFixture,
 } from "./fixtures";
@@ -18,6 +21,7 @@ export class FixtureContentRepository implements ContentRepository {
   private readonly settings: SiteSettings;
   private readonly projects: Project[];
   private readonly kitItems: KitItem[];
+  private readonly pickItems: PickItem[];
 
   constructor() {
     this.settings = siteSettingsSchema.parse(siteSettingsFixture);
@@ -26,6 +30,9 @@ export class FixtureContentRepository implements ContentRepository {
       .sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug));
     this.kitItems = kitItemFixtures
       .map((item) => kitItemSchema.parse(item))
+      .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+    this.pickItems = pickItemFixtures
+      .map((item) => pickItemSchema.parse(item))
       .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
   }
 
@@ -63,5 +70,9 @@ export class FixtureContentRepository implements ContentRepository {
       const item = byId.get(id);
       return item ? [item] : [];
     });
+  }
+
+  async getPickItems(): Promise<PickItem[]> {
+    return this.pickItems.slice();
   }
 }

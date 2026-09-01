@@ -1,4 +1,4 @@
-import type { KitItem, Project, SiteSettings } from "@/domain/schemas";
+import type { KitItem, PickItem, Project, SiteSettings } from "@/domain/schemas";
 
 import type { ContentRepository } from "./types";
 
@@ -45,5 +45,9 @@ export class FallbackContentRepository implements ContentRepository {
 
   getKitTeaser(): Promise<KitItem[]> {
     return this.withFallback((repo) => repo.getKitTeaser());
+  }
+
+  getPickItems(): Promise<PickItem[]> {
+    return this.withFallback((repo) => repo.getPickItems());
   }
 }

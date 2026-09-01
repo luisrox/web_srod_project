@@ -48,4 +48,21 @@ describe("ContentRepository (fixtures)", () => {
     expect(teaser.length).toBeLessThanOrEqual(3);
     expect(teaser.map((item) => item.id)).toEqual(settings.kitTeaserIds);
   });
+
+  it("getPickItems() respeta el orden manual y las URLs de afiliado", async () => {
+    const items = await content.getPickItems();
+    const orders = items.map((item) => item.order);
+
+    expect(items.map((item) => item.id)).toEqual([
+      "freewell-brandon-li",
+      "money-shot-club",
+      "arc-pulse",
+      "artlist",
+    ]);
+    expect(orders).toEqual([...orders].sort((a, b) => a - b));
+    expect(items[0]?.url).toContain("freewellgear.com");
+    expect(items[1]?.url).toContain("skool.com/moneyshotclub");
+    expect(items[2]?.url).toContain("arc.cc");
+    expect(items[3]?.url).toContain("bit.ly/ArtlistSrodMode");
+  });
 });

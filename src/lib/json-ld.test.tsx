@@ -12,14 +12,19 @@ function parseLd(container: HTMLElement) {
 }
 
 describe("JSON-LD", () => {
-  it("Person es parseable y declara sameAs de YouTube e Instagram", async () => {
+  it("Person es parseable y declara sameAs de YouTube, Instagram y extras", async () => {
     const settings = await content.getSiteSettings();
     const { container } = render(<JsonLd data={personJsonLd(settings)} />);
     const data = parseLd(container);
 
     expect(data["@type"]).toBe("Person");
     expect(data.name).toBe("Srod Almenara");
-    expect(data.sameAs).toEqual([settings.youtubeUrl, settings.instagramUrl]);
+    expect(data.sameAs).toEqual([
+      settings.youtubeUrl,
+      settings.instagramUrl,
+      ...(settings.extraSocials ?? []).map((social) => social.url),
+    ]);
+    expect(data.sameAs).toContain("https://www.tiktok.com/@srodalmenara");
   });
 
   it("CreativeWork de un case incluye nombre, año, video e imagen absoluta", async () => {

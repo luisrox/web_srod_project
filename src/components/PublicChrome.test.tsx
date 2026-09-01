@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -20,6 +20,7 @@ const chromeProps = {
   youtubeUrl: "https://youtube.example",
   instagramUrl: "https://instagram.example",
   shopUrl: "https://shop.example",
+  contactEmail: "srod@srodalmenara.com",
 };
 
 describe("PublicChrome", () => {
@@ -34,6 +35,25 @@ describe("PublicChrome", () => {
     expect(document.querySelector('[data-ui="site-header"]')).not.toBeNull();
     expect(document.querySelector('[data-ui="site-footer"]')).not.toBeNull();
     expect(screen.getByText("Página")).toBeVisible();
+  });
+
+  it("el Contacto del header abre el modal y no navega", () => {
+    currentPath = "/";
+    render(
+      <PublicChrome {...chromeProps}>
+        <p>Página</p>
+      </PublicChrome>,
+    );
+
+    fireEvent.click(
+      within(screen.getByRole("navigation", { name: "Principal" })).getByRole(
+        "button",
+        { name: "Contacto" },
+      ),
+    );
+
+    expect(screen.getByRole("dialog", { name: "Contacto" })).toBeVisible();
+    expect(screen.getByLabelText("Nombre")).toBeVisible();
   });
 
   it("en /studio no pinta el chrome público", () => {

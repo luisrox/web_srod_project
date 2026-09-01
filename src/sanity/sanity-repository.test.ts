@@ -27,4 +27,14 @@ describe("SanityContentRepository", () => {
     ]);
     expect(PROJECTS_QUERY).toContain('*[_type == "project"]');
   });
+
+  it("getPickItems usa fixtures y no consulta GROQ", async () => {
+    const fetch = vi.fn();
+    const repo = new SanityContentRepository({ fetch });
+    const items = await repo.getPickItems();
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(items).toHaveLength(4);
+    expect(items[0]?.id).toBe("freewell-brandon-li");
+  });
 });

@@ -6,6 +6,7 @@ import {
   EmptyInstagramFeed,
   INSTAGRAM_FEED_MAX,
   INSTAGRAM_PREVIEW_POSTS,
+  instagramEmbedUrl,
   parseInstagramFeed,
   PreviewInstagramFeed,
 } from "./instagram";
@@ -49,6 +50,15 @@ describe("InstagramFeed", () => {
     expect(INSTAGRAM_PREVIEW_POSTS).toHaveLength(6);
     expect(INSTAGRAM_PREVIEW_POSTS.every((post) => post.imageUrl.startsWith("/placeholders/"))).toBe(
       true,
+    );
+  });
+
+  it("arma la URL de embed oficial del perfil", () => {
+    expect(instagramEmbedUrl("https://www.instagram.com/srodalmenara/")).toBe(
+      "https://www.instagram.com/srodalmenara/embed/",
+    );
+    expect(instagramEmbedUrl("https://www.instagram.com/srodalmenara")).toBe(
+      "https://www.instagram.com/srodalmenara/embed/",
     );
   });
 

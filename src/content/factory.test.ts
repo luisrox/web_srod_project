@@ -86,6 +86,9 @@ describe("FallbackContentRepository", () => {
     getKitTeaser: async () => {
       throw new Error("network");
     },
+    getPickItems: async () => {
+      throw new Error("network");
+    },
   };
 
   it("si Sanity falla y el fallback está activo, usa fixtures", async () => {

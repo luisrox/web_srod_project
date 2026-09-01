@@ -1,5 +1,12 @@
+import { pickItemFixtures } from "@/content/fixtures";
 import type { ContentRepository } from "@/content/types";
-import type { KitItem, Project, SiteSettings } from "@/domain/schemas";
+import {
+  pickItemSchema,
+  type KitItem,
+  type PickItem,
+  type Project,
+  type SiteSettings,
+} from "@/domain/schemas";
 
 import type { SanityFetcher } from "./client";
 import {
@@ -63,5 +70,15 @@ export class SanityContentRepository implements ContentRepository {
       const item = byId.get(id);
       return item ? [item] : [];
     });
+  }
+
+  /**
+   * Los picks de afiliado viven en fixtures hasta que haya tipo CMS.
+   * Si Sanity no los publica, la página /recomendados sigue resolviendo.
+   */
+  async getPickItems(): Promise<PickItem[]> {
+    return pickItemFixtures
+      .map((item) => pickItemSchema.parse(item))
+      .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
   }
 }

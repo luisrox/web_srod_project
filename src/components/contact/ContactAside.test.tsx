@@ -45,12 +45,13 @@ describe("ContactAside", () => {
     expect(status.closest("[aria-live]")).toHaveAttribute("aria-live", "polite");
   });
 
-  it("menciona Panamá y lo remoto, y enlaza YouTube e Instagram", () => {
+  it("menciona Panamá y lo remoto, y enlaza YouTube, Instagram y TikTok", () => {
     render(
       <ContactAside
         contactEmail={settings.contactEmail}
         youtubeUrl={settings.youtubeUrl}
         instagramUrl={settings.instagramUrl}
+        extraSocials={settings.extraSocials}
         availabilityNote={settings.availabilityNote}
       />,
     );
@@ -66,6 +67,10 @@ describe("ContactAside", () => {
     expect(screen.getByRole("link", { name: /Instagram/ })).toHaveAttribute(
       "href",
       settings.instagramUrl,
+    );
+    expect(screen.getByRole("link", { name: /TikTok/ })).toHaveAttribute(
+      "href",
+      "https://www.tiktok.com/@srodalmenara",
     );
   });
 });

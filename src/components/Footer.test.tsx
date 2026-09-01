@@ -104,13 +104,13 @@ describe("Footer", () => {
         youtubeUrl={settings.youtubeUrl}
         instagramUrl={settings.instagramUrl}
         shopUrl={settings.shopUrl}
-        extraSocials={[{ label: "Vimeo", url: "https://vimeo.com/srod" }]}
+        extraSocials={settings.extraSocials}
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Vimeo" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "TikTok" })).toHaveAttribute(
       "href",
-      "https://vimeo.com/srod",
+      "https://www.tiktok.com/@srodalmenara",
     );
   });
 });

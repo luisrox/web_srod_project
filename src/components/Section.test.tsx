@@ -17,4 +17,14 @@ describe("Section", () => {
     expect(region).toContainElement(heading);
     expect(region).toHaveAttribute("aria-labelledby", heading.id);
   });
+
+  it("puede aclarar el rol de la sección con un intro", () => {
+    render(
+      <Section title="Proceso" intro="Últimos videos del canal.">
+        <p>Feed</p>
+      </Section>,
+    );
+
+    expect(screen.getByText("Últimos videos del canal.")).toBeVisible();
+  });
 });

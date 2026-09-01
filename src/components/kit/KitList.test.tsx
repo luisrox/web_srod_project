@@ -61,6 +61,20 @@ describe("KitList", () => {
       expect(row).not.toBeNull();
       expect(within(row as HTMLElement).getByText(item.name)).toBeVisible();
       expect(within(row as HTMLElement).getByText(item.usageNote)).toBeVisible();
+      if (item.shopUrl) {
+        expect(
+          within(row as HTMLElement).queryByRole("link", {
+            name: /Comprar en Amazon/,
+          }),
+        ).toBeNull();
+        expect(row?.querySelector("a")).toHaveAttribute("href", item.shopUrl);
+        expect(row?.querySelector("a")).toHaveAttribute(
+          "rel",
+          "noopener noreferrer",
+        );
+      } else {
+        expect(row?.querySelector("a")).toBeNull();
+      }
     });
   });
 });

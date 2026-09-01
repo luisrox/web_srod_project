@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getYoutubeFeed,
   parseYoutubeRss,
+  splitYoutubeFeedForHome,
   youtubeRssUrl,
 } from "./youtube-feed";
 
@@ -17,6 +18,7 @@ const RSS_THREE = `<?xml version="1.0" encoding="UTF-8"?>
     <link rel="alternate" href="https://www.youtube.com/watch?v=aaaaaaaaaaa"/>
     <media:group>
       <media:thumbnail url="https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg"/>
+      <media:description>Look de verano en Casco Viejo.</media:description>
     </media:group>
   </entry>
   <entry>
@@ -40,7 +42,7 @@ const RSS_THREE = `<?xml version="1.0" encoding="UTF-8"?>
 </feed>`;
 
 describe("parseYoutubeRss", () => {
-  it("extrae id, título, thumbnail, url y publishedAt de 3 entries", () => {
+  it("extrae id, título, thumbnail, url, publishedAt y description de 3 entries", () => {
     const videos = parseYoutubeRss(RSS_THREE);
 
     expect(videos).toHaveLength(3);
@@ -50,7 +52,9 @@ describe("parseYoutubeRss", () => {
       thumbnail: "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg",
       url: "https://www.youtube.com/watch?v=aaaaaaaaaaa",
       publishedAt: "2026-01-01T12:00:00+00:00",
+      description: "Look de verano en Casco Viejo.",
     });
+    expect(videos[1]?.description).toBe("");
     expect(videos[2]?.id).toBe("ccccccccccc");
   });
 });
@@ -131,5 +135,28 @@ describe("youtubeRssUrl", () => {
     expect(
       youtubeRssUrl({ youtubeUrl: "https://www.youtube.com/c/srodmode" }),
     ).toBeNull();
+  });
+});
+
+describe("splitYoutubeFeedForHome", () => {
+  it("separa el último video para el hero y deja el resto en Trabajo destacado", () => {
+    const videos = parseYoutubeRss(RSS_THREE);
+    const { latest, rest } = splitYoutubeFeedForHome({
+      ok: true,
+      videos,
+    });
+
+    expect(latest?.id).toBe("aaaaaaaaaaa");
+    expect(rest).toEqual({
+      ok: true,
+      videos: videos.slice(1),
+    });
+  });
+
+  it("si el feed falla no inventa un destacado", () => {
+    expect(splitYoutubeFeedForHome({ ok: false, videos: [] })).toEqual({
+      latest: undefined,
+      rest: { ok: false, videos: [] },
+    });
   });
 });

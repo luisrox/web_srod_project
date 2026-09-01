@@ -9,7 +9,7 @@ export function ContactCta({ shopUrl }: ContactCtaProps) {
   return (
     <Section
       ui="contact-cta"
-      className="mx-auto max-w-4xl px-6 py-section"
+      className="mx-auto max-w-6xl px-6 py-section"
     >
       <p className="font-display text-2xl font-medium tracking-tight">
         Si hay un encargo, escríbeme.

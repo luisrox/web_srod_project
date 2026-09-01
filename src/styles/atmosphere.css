@@ -1,0 +1,143 @@
+/* Fondo vivo del laboratorio: nogal + practicals de tungsteno.
+   Sin WebGL. Las luces se cortan con prefers-reduced-motion. */
+
+[data-ui="atmosphere"] {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--srod-color-bg);
+  background-image: radial-gradient(
+    ellipse 90% 75% at 42% 38%,
+    color-mix(in srgb, #4a2e1c 42%, var(--srod-color-bg)),
+    var(--srod-color-bg) 72%
+  );
+}
+
+.srod-atmosphere-wood,
+.srod-atmosphere-lights,
+.srod-atmosphere-ember,
+.srod-atmosphere-grain,
+.srod-atmosphere-vignette {
+  position: absolute;
+  inset: 0;
+}
+
+.srod-atmosphere-wood {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--srod-color-bg) 72%, #5a3824) 0 1px,
+      var(--srod-color-bg) 2px,
+      color-mix(in srgb, var(--srod-color-bg) 58%, #3a2418) 3px,
+      color-mix(in srgb, var(--srod-color-bg) 82%, #6b4630) 5px,
+      var(--srod-color-bg) 8px,
+      color-mix(in srgb, #000 22%, var(--srod-color-bg)) 10px,
+      var(--srod-color-bg) 13px
+    ),
+    repeating-linear-gradient(
+      88deg,
+      transparent 0 14px,
+      color-mix(in srgb, #000 16%, transparent) 18px,
+      transparent 28px
+    ),
+    repeating-linear-gradient(
+      92deg,
+      transparent 0 22px,
+      color-mix(in srgb, #6a422c 18%, transparent) 27px,
+      transparent 44px
+    );
+  background-size: 132px 100%, 220px 100%, 176px 100%;
+  opacity: 0.7;
+}
+
+.srod-atmosphere-lights {
+  inset: -18%;
+  background:
+    radial-gradient(
+      ellipse 58% 46% at 16% 18%,
+      color-mix(in srgb, var(--srod-color-glow) 78%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 88% 62%,
+      color-mix(in srgb, var(--srod-color-accent) 52%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 36% 28% at 62% 12%,
+      color-mix(in srgb, var(--srod-color-glow) 42%, transparent),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 44% 34% at 48% 96%,
+      color-mix(in srgb, var(--srod-color-glow) 34%, transparent),
+      transparent 58%
+    );
+  mix-blend-mode: screen;
+  animation: srod-lights-wander 24s ease-in-out infinite alternate;
+}
+
+.srod-atmosphere-ember {
+  inset: 28% 42% 38% 18%;
+  background: radial-gradient(
+    circle at 40% 50%,
+    color-mix(in srgb, var(--srod-color-glow) 70%, #ff7a32),
+    transparent 68%
+  );
+  mix-blend-mode: screen;
+  filter: blur(28px);
+  animation: srod-ember-pulse 5.6s ease-in-out infinite;
+}
+
+.srod-atmosphere-grain {
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+.srod-atmosphere-vignette {
+  background: radial-gradient(
+    ellipse 78% 68% at 50% 42%,
+    transparent 40%,
+    color-mix(in srgb, var(--srod-color-bg) 72%, #000) 100%
+  );
+}
+
+@keyframes srod-lights-wander {
+  from {
+    transform: translate3d(-2.2%, -1.4%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2.8%, 2.2%, 0) scale(1.07);
+  }
+}
+
+@keyframes srod-ember-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.96);
+  }
+  35% {
+    opacity: 0.88;
+    transform: scale(1.06);
+  }
+  55% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  78% {
+    opacity: 0.8;
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .srod-atmosphere-lights,
+  .srod-atmosphere-ember {
+    animation: none;
+  }
+}

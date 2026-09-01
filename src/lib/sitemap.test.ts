@@ -12,6 +12,7 @@ describe("sitemap", () => {
     const urls = entries.map((entry) => entry.url);
 
     expect(urls).toContain(absoluteUrl("/"));
+    expect(urls).toContain(absoluteUrl("/recomendados"));
     expect(urls).toContain(absoluteUrl("/trabajo"));
     expect(urls).toContain(absoluteUrl("/kit"));
     expect(urls).toContain(absoluteUrl("/sobre"));

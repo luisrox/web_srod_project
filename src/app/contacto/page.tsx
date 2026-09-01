@@ -29,6 +29,7 @@ export default async function ContactoPage() {
           contactEmail={settings.contactEmail}
           youtubeUrl={settings.youtubeUrl}
           instagramUrl={settings.instagramUrl}
+          extraSocials={settings.extraSocials}
           availabilityNote={settings.availabilityNote}
         />
       </div>

@@ -1,10 +1,13 @@
 /**
- * Fuente de verdad del sistema visual (SPEC §3).
+ * Fuente de verdad del sistema visual (SPEC §3, actualizado a set vivo).
  *
- * Look claro / galería: papel luminoso, tinta casi negra y un acento ámbar
- * quemado tomado de la identidad pública del canal @srodmode (thumbnails y
- * wordmark tiran a naranja cálido sobre neutros). No se copia el sitio
- * Squarespace actual: aquí hay sistema, allí no.
+ * El lienzo es un set de nogal con practicals de tungsteno — el ritmo de los
+ * videos de @srodmode, no un papel de laboratorio. Las cajas de galería siguen
+ * siendo papel: stills y fichas se leen como copias sobre la mesa.
+ *
+ * `ink` / `muted` / `line` / `accent` viven en el set. `onSurface*` es la tinta
+ * sobre el papel; `.bg-surface` las remapea para que las cajas no hereden
+ * crema sobre blanco.
  *
  * El canal de música / guitarra no aporta paleta a esta web (SPEC §3, §10).
  *
@@ -15,20 +18,32 @@
  */
 
 export const color = {
-  /** Lienzo del sitio: papel cálido, no blanco de laboratorio. */
-  bg: "#f7f5f2",
+  /** Lienzo del sitio: nogal quemado detrás de las luces. */
+  bg: "#1c120c",
   /** Cara de las cajas de galería (stills, video, fichas). */
-  surface: "#ffffff",
-  /** Texto principal. */
-  ink: "#171512",
-  /** Texto secundario: créditos, metadatos, ficha técnica. */
-  muted: "#5e574e",
-  /** Bordes finos de caja y separadores. */
-  line: "#e6e1d9",
-  /** Acento de marca: enlaces, CTA y anillo de foco. */
-  accent: "#b23d18",
-  /** Texto sobre el acento. */
-  accentInk: "#ffffff",
+  surface: "#f3eee6",
+  /** Texto sobre el set. */
+  ink: "#f5e6d0",
+  /** Texto secundario sobre el set: créditos, metadatos. */
+  muted: "#cbb59c",
+  /** Bordes y separadores sobre el set. */
+  line: "#4a3428",
+  /** Acento sobre el set: enlaces, CTA y anillo de foco. */
+  accent: "#e3924f",
+  /** Texto sobre el acento del set. */
+  accentInk: "#1c120c",
+  /** Tinta sobre el papel de galería. */
+  onSurface: "#171512",
+  /** Texto secundario sobre el papel. */
+  onSurfaceMuted: "#5e574e",
+  /** Bordes de caja sobre el papel. */
+  onSurfaceLine: "#e6e1d9",
+  /** Acento sobre el papel (mismo ámbar quemado del canal). */
+  onSurfaceAccent: "#b23d18",
+  /** Texto sobre el acento del papel. */
+  onSurfaceAccentInk: "#ffffff",
+  /** Practical de tungsteno del fondo vivo. */
+  glow: "#f0b56a",
 } as const;
 
 export const font = {
@@ -42,12 +57,12 @@ export const radius = {
 
 export const shadow = {
   gallery:
-    "0 1px 2px rgba(23, 21, 18, 0.05), 0 18px 40px -24px rgba(23, 21, 18, 0.28)",
+    "0 1px 2px rgba(0, 0, 0, 0.28), 0 22px 48px -18px rgba(0, 0, 0, 0.55), 0 0 40px -12px rgba(227, 146, 79, 0.22)",
 } as const;
 
 export const space = {
-  section: "clamp(4rem, 8vw, 7rem)",
-  sectionSm: "clamp(2.5rem, 5vw, 4rem)",
+  section: "clamp(3rem, 6vw, 5rem)",
+  sectionSm: "clamp(1.5rem, 3.2vw, 2.5rem)",
 } as const;
 
 export const tokens: Record<string, Record<string, string>> = {

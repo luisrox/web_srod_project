@@ -16,7 +16,12 @@ describe("GalleryBox", () => {
       .closest('[data-ui="gallery-box"]');
 
     expect(box).not.toBeNull();
-    expect(box).toHaveClass("bg-surface", "rounded-gallery", "shadow-gallery");
+    expect(box).toHaveClass(
+      "bg-surface",
+      "text-ink",
+      "rounded-gallery",
+      "shadow-gallery",
+    );
   });
 
   it("acepta otro elemento y clases adicionales sin perder la caja", () => {

@@ -2,9 +2,14 @@ import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+import { DEFAULT_ELFSIGHT_INSTAGRAM_ID } from "@/lib/elfsight";
 import type { InstagramPost } from "@/lib/instagram";
 
 import { InstagramGrid } from "./InstagramGrid";
+
+vi.mock("next/script", () => ({
+  default: () => null,
+}));
 
 vi.mock("next/link", () => ({
   default({ href, children }: { href: string; children: ReactNode }) {
@@ -41,19 +46,42 @@ describe("InstagramGrid", () => {
     });
 
     expect(
-      within(block as HTMLElement).getByRole("link", { name: /Ver el perfil/ }),
-    ).toHaveAttribute("href", profile);
+      within(block as HTMLElement).queryByRole("link", {
+        name: /Ver el perfil/,
+      }),
+    ).toBeNull();
   });
 
-  it("con posts vacíos no muestra grid roto: mensaje breve y enlace al perfil", () => {
+  it("con posts vacíos muestra el embed oficial y no un CTA de perfil", async () => {
     render(<InstagramGrid href={profile} posts={[]} />);
 
     const block = document.querySelector('[data-ui="instagram-teaser"]');
     expect(block?.querySelector("ul")).toBeNull();
     expect(block?.querySelectorAll("figure")).toHaveLength(0);
-    expect(block?.textContent).toMatch(/perfil/i);
+    expect(block?.querySelector("iframe")).toHaveAttribute(
+      "src",
+      "https://www.instagram.com/srodalmenara/embed/",
+    );
     expect(
-      screen.getByRole("link", { name: /Ver el perfil/ }),
-    ).toHaveAttribute("href", profile);
+      screen.queryByRole("link", { name: /Ver el perfil/ }),
+    ).toBeNull();
+  });
+
+  it("con widget Elfsight monta el contenedor y no un iframe de perfil", () => {
+    render(
+      <InstagramGrid
+        href={profile}
+        posts={[]}
+        widgetId={DEFAULT_ELFSIGHT_INSTAGRAM_ID}
+      />,
+    );
+
+    const block = document.querySelector('[data-ui="instagram-teaser"]');
+    expect(block?.querySelector('[data-ui="instagram-elfsight"]')).not.toBeNull();
+    expect(block?.querySelector("iframe")).toBeNull();
+    expect(block?.querySelector("ul")).toBeNull();
+    expect(
+      screen.queryByRole("link", { name: /Ver el perfil/ }),
+    ).toBeNull();
   });
 });

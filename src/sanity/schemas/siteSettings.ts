@@ -93,7 +93,9 @@ export const siteSettingsType = defineType({
     }),
     defineField({
       name: "heroYoutubeVideoId",
-      title: "ID de video del hero",
+      title: "ID de video del hero (reserva)",
+      description:
+        "Se usa si el RSS del canal falla. Con feed ok, el hero muestra el último video publicado.",
       type: "string",
       validation: (rule) =>
         rule.required().regex(youtubeIdPattern, { name: "youtubeVideoId" }),

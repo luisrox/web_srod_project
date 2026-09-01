@@ -3,14 +3,20 @@ import type { Project, SiteSettings } from "@/domain/schemas";
 import { SITE_NAME } from "./site";
 import { absoluteUrl, getSiteUrl } from "./site-url";
 
-export function personJsonLd(settings: Pick<SiteSettings, "youtubeUrl" | "instagramUrl">) {
+export function personJsonLd(
+  settings: Pick<SiteSettings, "youtubeUrl" | "instagramUrl" | "extraSocials">,
+) {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
     name: SITE_NAME,
     jobTitle: "Director de fotografía",
     url: getSiteUrl(),
-    sameAs: [settings.youtubeUrl, settings.instagramUrl],
+    sameAs: [
+      settings.youtubeUrl,
+      settings.instagramUrl,
+      ...(settings.extraSocials ?? []).map((social) => social.url),
+    ],
   };
 }
 

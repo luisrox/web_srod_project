@@ -174,6 +174,10 @@ export function createInstagramFeed(
   return new ConfigInstagramFeed(url);
 }
 
+export function instagramEmbedUrl(profileUrl: string): string {
+  return `${profileUrl.replace(/\/+$/, "")}/embed/`;
+}
+
 export function getInstagramPosts(
   feed: InstagramFeed = createInstagramFeed(),
 ): Promise<InstagramPost[]> {

@@ -91,6 +91,17 @@ export const kitItemSchema = z.strictObject({
   name: nonEmpty,
   photo: nonEmpty.optional(),
   usageNote: nonEmpty,
+  shopUrl: z.url().optional(),
+  order: z.int(),
+});
+
+export const pickItemSchema = z.strictObject({
+  id: slugSchema,
+  name: nonEmpty,
+  photo: nonEmpty,
+  note: nonEmpty,
+  url: z.url(),
+  cta: nonEmpty,
   order: z.int(),
 });
 
@@ -100,6 +111,7 @@ export type ExtraSocial = z.infer<typeof extraSocialSchema>;
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 export type Project = z.infer<typeof projectSchema>;
 export type KitItem = z.infer<typeof kitItemSchema>;
+export type PickItem = z.infer<typeof pickItemSchema>;
 
 export const GEEK_FIELD_KEYS = [
   "camera",

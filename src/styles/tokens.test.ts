@@ -50,6 +50,9 @@ describe("tokens de color", () => {
         "muted",
         "accent",
         "accentInk",
+        "onSurface",
+        "onSurfaceMuted",
+        "glow",
       ]),
     );
 
@@ -58,24 +61,32 @@ describe("tokens de color", () => {
     }
   });
 
-  it("pinta sobre un lienzo luminoso, nunca sobre un dark canvas", () => {
-    // SPEC §3 pide look claro / galería: el fondo es papel, no set de noche.
-    // Una luminancia relativa > 0.8 sólo la alcanzan fondos casi blancos;
-    // un dark canvas (< 0.2) rompe este test de forma inmediata.
-    expect(relativeLuminance(color.bg)).toBeGreaterThan(0.8);
-    expect(relativeLuminance(color.surface)).toBeGreaterThanOrEqual(
-      relativeLuminance(color.bg),
-    );
+  it("el lienzo es un set de madera; las cajas siguen siendo papel", () => {
+    // Fondo vivo tipo video de Srod: nogal oscuro. Las cajas de galería
+    // conservan papel luminoso para stills y fichas.
+    expect(relativeLuminance(color.bg)).toBeLessThan(0.2);
+    expect(relativeLuminance(color.surface)).toBeGreaterThan(0.8);
   });
 
-  it("mantiene contraste legible sobre la UI clara", () => {
+  it("mantiene contraste en el set y sobre el papel", () => {
     expect(contrastRatio(color.ink, color.bg)).toBeGreaterThanOrEqual(7);
     expect(contrastRatio(color.muted, color.bg)).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(color.accentInk, color.accent)).toBeGreaterThanOrEqual(
       4.5,
     );
-    // El acento también es el anillo de foco: mínimo 3:1 contra el fondo.
-    expect(contrastRatio(color.accent, color.bg)).toBeGreaterThanOrEqual(3);
+    expect(contrastRatio(color.accent, color.bg)).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrastRatio(color.onSurface, color.surface),
+    ).toBeGreaterThanOrEqual(7);
+    expect(
+      contrastRatio(color.onSurfaceMuted, color.surface),
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrastRatio(color.onSurfaceAccentInk, color.onSurfaceAccent),
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrastRatio(color.onSurfaceAccent, color.surface),
+    ).toBeGreaterThanOrEqual(3);
   });
 });
 
@@ -103,5 +114,17 @@ describe("paridad TS ↔ CSS", () => {
         expect(tokensCss).toContain(`${cssVarName(group, key)}: ${value};`);
       }
     }
+  });
+});
+
+const globalsCss = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "globals.css"),
+  "utf8",
+);
+
+describe("papel sobre el set", () => {
+  it("globals.css remapea tinta de galería sobre .bg-surface", () => {
+    expect(globalsCss).toContain(".bg-surface");
+    expect(globalsCss).toContain("--srod-color-ink: var(--srod-color-on-surface)");
   });
 });

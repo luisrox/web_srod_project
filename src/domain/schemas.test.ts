@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   kitItemFixtures,
+  pickItemFixtures,
   projectFixtures,
   siteSettingsFixture,
 } from "@/content/fixtures";
@@ -9,6 +10,7 @@ import {
   GEEK_FIELD_KEYS,
   hasGeekFields,
   kitItemSchema,
+  pickItemSchema,
   projectSchema,
   siteSettingsSchema,
 } from "@/domain/schemas";
@@ -113,8 +115,13 @@ describe("siteSettingsSchema", () => {
 
   it("acepta extraSocials opcional y lo omite si no viene", () => {
     expect(
-      siteSettingsSchema.parse(siteSettingsFixture).extraSocials,
+      siteSettingsSchema.parse(withoutKey(siteSettingsFixture, "extraSocials"))
+        .extraSocials,
     ).toBeUndefined();
+
+    expect(siteSettingsSchema.parse(siteSettingsFixture).extraSocials).toEqual([
+      { label: "TikTok", url: "https://www.tiktok.com/@srodalmenara" },
+    ]);
 
     const withExtras = siteSettingsSchema.parse({
       ...siteSettingsFixture,
@@ -220,5 +227,41 @@ describe("kitItemSchema", () => {
     expect(
       kitItemSchema.safeParse(withoutKey(sample!, "usageNote")).success,
     ).toBe(false);
+
+    expect(
+      kitItemSchema.parse({
+        ...sample,
+        shopUrl: "https://amzn.to/3nfJT5O",
+      }).shopUrl,
+    ).toBe("https://amzn.to/3nfJT5O");
+  });
+});
+
+describe("pickItemSchema", () => {
+  const sample = pickItemFixtures[0];
+
+  it("parsea todos los picks fixture", () => {
+    expect(sample).toBeDefined();
+
+    for (const item of pickItemFixtures) {
+      expect(pickItemSchema.parse(item).id).toBe(item.id);
+    }
+  });
+
+  it("exige foto, URL y CTA", () => {
+    expect(sample).toBeDefined();
+
+    expect(
+      pickItemSchema.safeParse(withoutKey(sample!, "photo")).success,
+    ).toBe(false);
+    expect(pickItemSchema.safeParse(withoutKey(sample!, "url")).success).toBe(
+      false,
+    );
+    expect(pickItemSchema.safeParse(withoutKey(sample!, "cta")).success).toBe(
+      false,
+    );
+    expect(pickItemSchema.safeParse(withoutKey(sample!, "note")).success).toBe(
+      false,
+    );
   });
 });

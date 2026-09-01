@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./atmosphere.css";
 
 @source "../";
 
@@ -28,10 +29,30 @@
 @layer base {
   html {
     background-color: var(--srod-color-bg);
+    color-scheme: dark;
   }
 
   :focus-visible {
     outline: 2px solid var(--srod-color-accent);
     outline-offset: 3px;
+  }
+
+  /*
+    El set usa tinta crema. Sobre papel (cajas, campos) hay que volver a
+    tinta oscura: se remapean las mismas variables que ya consumen las
+    utilidades text-ink / text-muted / text-accent.
+  */
+  .bg-surface,
+  [data-ui="gallery-box"] {
+    --srod-color-ink: var(--srod-color-on-surface);
+    --srod-color-muted: var(--srod-color-on-surface-muted);
+    --srod-color-line: var(--srod-color-on-surface-line);
+    --srod-color-accent: var(--srod-color-on-surface-accent);
+    --srod-color-accent-ink: var(--srod-color-on-surface-accent-ink);
+    color: var(--srod-color-ink);
+  }
+
+  [data-ui="gallery-box"] :focus-visible {
+    outline-color: var(--srod-color-accent);
   }
 }

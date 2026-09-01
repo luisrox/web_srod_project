@@ -9,7 +9,7 @@ type GalleryBoxProps = {
 };
 
 const galleryBoxClasses =
-  "rounded-gallery border border-line bg-surface shadow-gallery";
+  "rounded-gallery border border-line bg-surface text-ink shadow-gallery";
 
 export function GalleryBox({
   children,

@@ -36,6 +36,10 @@ describe("página /contacto", () => {
     expect(screen.getByText(settings.contactEmail)).toBeVisible();
     expect(document.body.textContent).toMatch(/Panamá/);
     expect(document.body.textContent).toMatch(/remot/i);
+    expect(screen.getByRole("link", { name: /tiktok/i })).toHaveAttribute(
+      "href",
+      "https://www.tiktok.com/@srodalmenara",
+    );
   });
 
   it("tras un envío exitoso mantiene el email de respaldo", async () => {

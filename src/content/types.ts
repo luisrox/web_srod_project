@@ -1,4 +1,4 @@
-import type { KitItem, Project, SiteSettings } from "@/domain/schemas";
+import type { KitItem, PickItem, Project, SiteSettings } from "@/domain/schemas";
 
 export interface ContentRepository {
   getSiteSettings(): Promise<SiteSettings>;
@@ -7,4 +7,5 @@ export interface ContentRepository {
   getFeaturedProjects(): Promise<Project[]>;
   getKitItems(): Promise<KitItem[]>;
   getKitTeaser(): Promise<KitItem[]>;
+  getPickItems(): Promise<PickItem[]>;
 }

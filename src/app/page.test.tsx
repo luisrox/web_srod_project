@@ -2,8 +2,13 @@ import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ABOUT_PORTRAIT_ALT } from "@/components/about/AboutBio";
 import { StudioShell } from "@/components/StudioShell";
 import { content } from "@/content";
+import {
+  DEFAULT_ELFSIGHT_INSTAGRAM_ID,
+  getElfsightInstagramId,
+} from "@/lib/elfsight";
 import { getInstagramPosts } from "@/lib/instagram";
 import { getYoutubeFeed } from "@/lib/youtube-feed";
 import { homePageTitle, pageTitle } from "@/lib/metadata";
@@ -12,13 +17,33 @@ import { SITE_NAME } from "@/lib/site";
 
 import Home, { generateMetadata } from "./page";
 
-vi.mock("@/lib/instagram", () => ({
-  getInstagramPosts: vi.fn(),
+vi.mock("next/script", () => ({
+  default: () => null,
 }));
 
-vi.mock("@/lib/youtube-feed", () => ({
-  getYoutubeFeed: vi.fn(),
-}));
+vi.mock("@/lib/elfsight", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/elfsight")>();
+  return {
+    ...actual,
+    getElfsightInstagramId: vi.fn(() => actual.DEFAULT_ELFSIGHT_INSTAGRAM_ID),
+  };
+});
+
+vi.mock("@/lib/instagram", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/instagram")>();
+  return {
+    ...actual,
+    getInstagramPosts: vi.fn(),
+  };
+});
+
+vi.mock("@/lib/youtube-feed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/youtube-feed")>();
+  return {
+    ...actual,
+    getYoutubeFeed: vi.fn(),
+  };
+});
 
 vi.mock("next/link", () => ({
   default({
@@ -64,6 +89,9 @@ describe("Home", () => {
   beforeEach(() => {
     vi.mocked(getYoutubeFeed).mockResolvedValue({ ok: false, videos: [] });
     vi.mocked(getInstagramPosts).mockResolvedValue([]);
+    vi.mocked(getElfsightInstagramId).mockReturnValue(
+      DEFAULT_ELFSIGHT_INSTAGRAM_ID,
+    );
   });
 
   afterEach(() => {
@@ -79,6 +107,11 @@ describe("Home", () => {
 
     expect(hero).not.toBeNull();
     expect(heading.closest('[data-ui="gallery-box"]')).not.toBeNull();
+    expect(
+      within(hero as HTMLElement).getByRole("img", {
+        name: ABOUT_PORTRAIT_ALT,
+      }),
+    ).toHaveAttribute("src", settings.portrait);
     expect(screen.getByText(settings.heroTitle)).toBeVisible();
     expect(screen.getByText(settings.heroSubtitle)).toBeVisible();
     expect(hero?.querySelector('[data-ui="youtube-embed"]')).not.toBeNull();
@@ -87,6 +120,8 @@ describe("Home", () => {
         name: "Reproducir Reel de dirección de fotografía",
       }),
     ).toBeVisible();
+    expect(hero?.textContent).not.toMatch(/YouTube es la prueba/i);
+    expect(hero?.textContent).not.toMatch(/Laboratorio/i);
   });
 
   it("el gancho del hero no menciona Panamá", async () => {
@@ -119,23 +154,35 @@ describe("Home", () => {
       "href",
       "/sobre",
     );
+
+    const instagram = document.querySelector('[data-ui="instagram-teaser"]');
+    const about = document.querySelector('[data-ui="about-excerpt"]');
+    expect(instagram && about).toBeTruthy();
+    expect(
+      Boolean(
+        instagram &&
+          about &&
+          instagram.compareDocumentPosition(about) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+      ),
+    ).toBe(true);
   });
 
-  it("lista exactamente los cases destacados con su ruta", async () => {
-    const settings = await content.getSiteSettings();
-    const featured = await content.getFeaturedProjects();
+  it("en Trabajo destacado lista el feed de YouTube y no stills de fixture", async () => {
     await renderHome();
 
     const block = document.querySelector('[data-ui="featured-work"]');
     expect(block).not.toBeNull();
-
-    const links = block!.querySelectorAll('a[href^="/trabajo/"]');
-    expect(links).toHaveLength(settings.featuredProjectSlugs.length);
-
-    featured.forEach((project, index) => {
-      expect(links[index]).toHaveAttribute("href", `/trabajo/${project.slug}`);
-      expect(links[index]).toHaveTextContent(project.title);
-    });
+    expect(block).toHaveTextContent("Videos recientes del canal");
+    expect(
+      within(block as HTMLElement).queryByRole("link", {
+        name: "Ver el trabajo",
+      }),
+    ).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Proceso" })).toBeNull();
+    expect(
+      document.querySelector('[data-ui="featured-work"] [data-ui="youtube-teaser"]'),
+    ).not.toBeNull();
   });
 
   it("lista el teaser de kit y enlaza a /kit", async () => {
@@ -152,9 +199,22 @@ describe("Home", () => {
     teaser.forEach((item) => {
       expect(within(block as HTMLElement).getByText(item.name)).toBeVisible();
       expect(within(block as HTMLElement).getByText(item.usageNote)).toBeVisible();
+      if (item.shopUrl) {
+        expect(within(block as HTMLElement).getByText(item.name).closest("a")).toHaveAttribute(
+          "href",
+          item.shopUrl,
+        );
+      }
     });
 
-    expect(screen.getByRole("link", { name: "Ver el kit" })).toHaveAttribute(
+    expect(
+      within(block as HTMLElement).queryByRole("link", {
+        name: /Comprar en Amazon/,
+      }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("link", { name: "Ver el kit completo" }),
+    ).toHaveAttribute(
       "href",
       "/kit",
     );
@@ -187,23 +247,41 @@ describe("Home", () => {
     expect(block).toHaveTextContent(note);
   });
 
-  it("si Instagram no trae posts, el fallback enlaza al perfil y no hay grid roto", async () => {
-    const settings = await content.getSiteSettings();
+  it("monta el widget Elfsight de Instagram sin CTA de perfil", async () => {
+    await renderHome();
+
+    const instagram = document.querySelector('[data-ui="instagram-teaser"]');
+    expect(instagram?.querySelector('[data-ui="instagram-elfsight"]')).not.toBeNull();
+    expect(instagram?.querySelector("ul")).toBeNull();
+    expect(instagram?.querySelector("iframe")).toBeNull();
+    expect(
+      within(instagram as HTMLElement).queryByRole("link", {
+        name: /Ver el perfil/,
+      }),
+    ).toBeNull();
+  });
+
+  it("si Elfsight está off y no hay posts, el embed del perfil sigue", async () => {
+    vi.mocked(getElfsightInstagramId).mockReturnValue(undefined);
     await renderHome();
 
     const instagram = document.querySelector('[data-ui="instagram-teaser"]');
     expect(instagram?.querySelector("ul")).toBeNull();
     expect(instagram?.querySelectorAll("figure")).toHaveLength(0);
-    expect(instagram?.textContent).toMatch(/perfil/i);
     expect(
-      within(instagram as HTMLElement).getByRole("link", {
+      instagram
+        ?.querySelector('[data-ui="instagram-embed"] iframe')
+        ?.getAttribute("src"),
+    ).toBe("https://www.instagram.com/srodalmenara/embed/");
+    expect(
+      within(instagram as HTMLElement).queryByRole("link", {
         name: /Ver el perfil/,
       }),
-    ).toHaveAttribute("href", settings.instagramUrl);
+    ).toBeNull();
   });
 
-  it("con posts de Instagram lista figuras en el mismo ancla y mantiene el perfil", async () => {
-    const settings = await content.getSiteSettings();
+  it("con Elfsight off y posts de Instagram lista figuras en el mismo ancla", async () => {
+    vi.mocked(getElfsightInstagramId).mockReturnValue(undefined);
     vi.mocked(getInstagramPosts).mockResolvedValue([
       {
         id: "ig-1",
@@ -222,13 +300,13 @@ describe("Home", () => {
       "https://www.instagram.com/p/aaa/",
     );
     expect(
-      within(instagram as HTMLElement).getByRole("link", {
+      within(instagram as HTMLElement).queryByRole("link", {
         name: /Ver el perfil/,
       }),
-    ).toHaveAttribute("href", settings.instagramUrl);
+    ).toBeNull();
   });
 
-  it("con feed de YouTube ok lista videos y mantiene el CTA al canal", async () => {
+  it("con feed de YouTube ok el hero destaca el último y el bloque lista el resto", async () => {
     const settings = await content.getSiteSettings();
     vi.mocked(getYoutubeFeed).mockResolvedValue({
       ok: true,
@@ -239,16 +317,33 @@ describe("Home", () => {
           thumbnail: "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg",
           url: "https://www.youtube.com/watch?v=aaaaaaaaaaa",
           publishedAt: "2026-01-01T12:00:00+00:00",
+          description: "Look de verano en Casco Viejo.",
+        },
+        {
+          id: "bbbbbbbbbbb",
+          title: "Café en Boquete",
+          thumbnail: "https://i.ytimg.com/vi/bbbbbbbbbbb/hqdefault.jpg",
+          url: "https://www.youtube.com/watch?v=bbbbbbbbbbb",
+          publishedAt: "2026-02-01T12:00:00+00:00",
+          description: "Café de altura.",
         },
       ],
     });
 
     await renderHome();
 
-    expect(screen.getByRole("link", { name: /Look en Casco/ })).toHaveAttribute(
-      "href",
-      "https://www.youtube.com/watch?v=aaaaaaaaaaa",
-    );
+    const hero = document.querySelector('[data-ui="hero"]');
+    expect(
+      within(hero as HTMLElement).getByRole("button", {
+        name: "Reproducir Look en Casco",
+      }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: /Café en Boquete/ }),
+    ).toHaveAttribute("href", "https://www.youtube.com/watch?v=bbbbbbbbbbb");
+    expect(
+      document.querySelector('[data-ui="youtube-teaser"]')?.textContent,
+    ).not.toMatch(/Look en Casco/);
     expect(
       within(
         document.querySelector('[data-ui="youtube-teaser"]') as HTMLElement,

@@ -1,8 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useCallback, useState } from "react";
 import { usePathname } from "next/navigation";
 
+import { ContactModal } from "@/components/contact/ContactModal";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
@@ -14,8 +16,10 @@ type PublicChromeProps = {
   youtubeUrl: string;
   instagramUrl: string;
   shopUrl: string;
+  contactEmail: string;
   musicUrl?: string;
   extraSocials?: ExtraSocial[];
+  availabilityNote?: string;
 };
 
 export function PublicChrome({
@@ -23,10 +27,14 @@ export function PublicChrome({
   youtubeUrl,
   instagramUrl,
   shopUrl,
+  contactEmail,
   musicUrl,
   extraSocials,
+  availabilityNote,
 }: PublicChromeProps) {
   const pathname = usePathname() ?? "/";
+  const [contactOpen, setContactOpen] = useState(false);
+  const closeContact = useCallback(() => setContactOpen(false), []);
 
   if (pathname.startsWith("/studio")) {
     return children;
@@ -35,7 +43,13 @@ export function PublicChrome({
   return (
     <StudioShell>
       <SkipLink />
-      <Header youtubeUrl={youtubeUrl} instagramUrl={instagramUrl} />
+      <Header
+        youtubeUrl={youtubeUrl}
+        instagramUrl={instagramUrl}
+        extraSocials={extraSocials}
+        contactOpen={contactOpen}
+        onOpenContact={() => setContactOpen(true)}
+      />
       <main id="contenido" className="flex-1">
         {children}
       </main>
@@ -45,6 +59,16 @@ export function PublicChrome({
         shopUrl={shopUrl}
         musicUrl={musicUrl}
         extraSocials={extraSocials}
+      />
+      <ContactModal
+        open={contactOpen}
+        onClose={closeContact}
+        contactEmail={contactEmail}
+        youtubeUrl={youtubeUrl}
+        instagramUrl={instagramUrl}
+        extraSocials={extraSocials}
+        availabilityNote={availabilityNote}
+        turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ""}
       />
     </StudioShell>
   );

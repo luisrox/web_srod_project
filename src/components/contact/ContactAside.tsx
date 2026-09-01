@@ -3,11 +3,13 @@
 import { useState } from "react";
 
 import { TextLink } from "@/components/TextLink";
+import type { ExtraSocial } from "@/domain/schemas";
 
 type ContactAsideProps = {
   contactEmail: string;
   youtubeUrl: string;
   instagramUrl: string;
+  extraSocials?: ExtraSocial[];
   availabilityNote?: string;
 };
 
@@ -15,8 +17,10 @@ export function ContactAside({
   contactEmail,
   youtubeUrl,
   instagramUrl,
+  extraSocials,
   availabilityNote,
 }: ContactAsideProps) {
+  const extras = extraSocials ?? [];
   const [copied, setCopied] = useState(false);
 
   async function copyEmail() {
@@ -57,6 +61,11 @@ export function ContactAside({
         <p className="mt-1">
           <TextLink href={instagramUrl}>Instagram</TextLink>
         </p>
+        {extras.map((social) => (
+          <p key={social.url} className="mt-1">
+            <TextLink href={social.url}>{social.label}</TextLink>
+          </p>
+        ))}
       </div>
     </aside>
   );

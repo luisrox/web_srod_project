@@ -21,19 +21,25 @@ type TurnstileApi = {
 
 type ContactFormProps = {
   turnstileSiteKey?: string;
+  /** Prefijo de ids si hay más de un form en el documento (p. ej. el modal). */
+  idPrefix?: string;
 };
 
 function readTurnstile(): TurnstileApi | undefined {
   return (window as Window & { turnstile?: TurnstileApi }).turnstile;
 }
 
-export function ContactForm({ turnstileSiteKey = "" }: ContactFormProps) {
+export function ContactForm({
+  turnstileSiteKey = "",
+  idPrefix = "",
+}: ContactFormProps) {
   const slotRef = useRef<HTMLDivElement>(null);
   const [token, setToken] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
   const [error, setError] = useState("");
+  const fieldId = (name: string) => `${idPrefix}${name}`;
 
   useEffect(() => {
     if (!turnstileSiteKey || !slotRef.current) {
@@ -132,11 +138,11 @@ export function ContactForm({ turnstileSiteKey = "" }: ContactFormProps) {
       onSubmit={onSubmit}
     >
       <div>
-        <label htmlFor="nombre" className="text-sm font-medium">
+        <label htmlFor={fieldId("nombre")} className="text-sm font-medium">
           Nombre
         </label>
         <input
-          id="nombre"
+          id={fieldId("nombre")}
           name="nombre"
           type="text"
           autoComplete="name"
@@ -145,11 +151,11 @@ export function ContactForm({ turnstileSiteKey = "" }: ContactFormProps) {
         />
       </div>
       <div>
-        <label htmlFor="email" className="text-sm font-medium">
+        <label htmlFor={fieldId("email")} className="text-sm font-medium">
           Email
         </label>
         <input
-          id="email"
+          id={fieldId("email")}
           name="email"
           type="email"
           autoComplete="email"
@@ -158,11 +164,11 @@ export function ContactForm({ turnstileSiteKey = "" }: ContactFormProps) {
         />
       </div>
       <div>
-        <label htmlFor="organizacion" className="text-sm font-medium">
+        <label htmlFor={fieldId("organizacion")} className="text-sm font-medium">
           Organización
         </label>
         <input
-          id="organizacion"
+          id={fieldId("organizacion")}
           name="organizacion"
           type="text"
           autoComplete="organization"
@@ -170,28 +176,28 @@ export function ContactForm({ turnstileSiteKey = "" }: ContactFormProps) {
         />
       </div>
       <div>
-        <label htmlFor="tipoProyecto" className="text-sm font-medium">
+        <label htmlFor={fieldId("tipoProyecto")} className="text-sm font-medium">
           Tipo de proyecto
         </label>
         <input
-          id="tipoProyecto"
+          id={fieldId("tipoProyecto")}
           name="tipoProyecto"
           type="text"
           className={fieldClass}
         />
       </div>
       <div>
-        <label htmlFor="fechas" className="text-sm font-medium">
+        <label htmlFor={fieldId("fechas")} className="text-sm font-medium">
           Fechas
         </label>
-        <input id="fechas" name="fechas" type="text" className={fieldClass} />
+        <input id={fieldId("fechas")} name="fechas" type="text" className={fieldClass} />
       </div>
       <div>
-        <label htmlFor="mensaje" className="text-sm font-medium">
+        <label htmlFor={fieldId("mensaje")} className="text-sm font-medium">
           Mensaje
         </label>
         <textarea
-          id="mensaje"
+          id={fieldId("mensaje")}
           name="mensaje"
           required
           rows={6}
@@ -200,9 +206,9 @@ export function ContactForm({ turnstileSiteKey = "" }: ContactFormProps) {
       </div>
 
       <div className="sr-only" aria-hidden="true">
-        <label htmlFor="empresa_url">No rellenar</label>
+        <label htmlFor={fieldId("empresa_url")}>No rellenar</label>
         <input
-          id="empresa_url"
+          id={fieldId("empresa_url")}
           name="empresa_url"
           type="text"
           autoComplete="off"

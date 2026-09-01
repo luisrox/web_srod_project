@@ -1,11 +1,14 @@
 import type { ReactNode } from "react";
 
+import { Atmosphere } from "@/components/Atmosphere";
+
 export function StudioShell({ children }: { children: ReactNode }) {
   return (
     <div
       data-ui="studio-shell"
-      className="flex min-h-screen flex-col bg-bg font-body text-ink antialiased"
+      className="relative isolate flex min-h-screen flex-col font-body text-ink antialiased"
     >
+      <Atmosphere />
       {children}
     </div>
   );

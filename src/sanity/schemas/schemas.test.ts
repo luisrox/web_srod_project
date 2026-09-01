@@ -69,7 +69,14 @@ const PROJECT_FIELDS = [
   "extraBlocks",
 ] as const;
 
-const KIT_ITEM_FIELDS = ["id", "name", "photo", "usageNote", "order"] as const;
+const KIT_ITEM_FIELDS = [
+  "id",
+  "name",
+  "photo",
+  "usageNote",
+  "shopUrl",
+  "order",
+] as const;
 
 describe("schemas Sanity ↔ Zod", () => {
   it("siteSettings declara name/type y todos los campos del Zod", () => {

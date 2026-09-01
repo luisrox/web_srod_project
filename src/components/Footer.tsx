@@ -41,9 +41,9 @@ export function Footer({
   return (
     <footer
       data-ui="site-footer"
-      className="border-t border-line bg-bg text-sm text-muted"
+      className="relative z-10 border-t border-line bg-bg/40 text-sm text-muted backdrop-blur-md"
     >
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-6 sm:px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-1 px-6 py-6">
         <ExternalLink href={youtubeUrl}>YouTube</ExternalLink>
         <ExternalLink href={instagramUrl}>Instagram</ExternalLink>
         {extras.map((social) => (

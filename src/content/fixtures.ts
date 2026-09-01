@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   kitItemSchema,
+  pickItemSchema,
   projectSchema,
   siteSettingsSchema,
 } from "@/domain/schemas";
@@ -19,20 +20,27 @@ import { CURRENT_SHOP_URL } from "@/lib/shop";
  *
  * shopUrl apunta al sitio actual de presets (Squarespace), no a una ruta nueva.
  * Instagram: perfil profesional; se confirma en CMS si el handle cambia.
- * extraSocials se omite a propósito: el footer no inventa filas vacías.
- * heroYoutubeVideoId dummy: srodHeroVid (no es un video real del canal).
+ * extraSocials: TikTok público de https://www.liinks.co/srodalmenara.
+ * Retrato, fotos de kit y thumbs de /recomendados salen de ese mismo Liinks
+ * (no son placeholders SVG).
+ * shopUrl de cada pieza de kit: Amazon afiliado del Liinks, si existe.
+ * Picks: URLs de afiliado que pidió Srod; las fotos son las del Liinks.
+ * heroYoutubeVideoId dummy: srodHeroVid (reserva si el RSS del canal falla;
+ * con feed ok, el hero usa el último video publicado).
  */
 
 export const siteSettingsFixture = {
-  heroTitle: "Un DP bien geek, con el proceso a la vista",
-  heroSubtitle:
-    "Cámaras, lentes y color para marcas y productoras. YouTube es la prueba, no el oficio entero.",
+  heroTitle: "Un DP bien geek que hace videos en YouTube",
+  heroSubtitle: "Cámaras, lentes y color para marcas y productoras.",
   heroYoutubeVideoId: "srodHeroVid",
   contactEmail: "srod@srodalmenara.com",
   youtubeUrl: "https://www.youtube.com/c/srodmode",
   /** Canal público @srodmode; el RSS de Home usa este UC, no un id en el componente. */
   youtubeChannelId: "UC0JZGMS9SBmv3fPVSqZh4zQ",
   instagramUrl: "https://www.instagram.com/srodalmenara/",
+  extraSocials: [
+    { label: "TikTok", url: "https://www.tiktok.com/@srodalmenara" },
+  ],
   youtubeFeedCount: 6,
   whereaboutsText: "",
   availabilityNote:
@@ -43,7 +51,7 @@ export const siteSettingsFixture = {
     "lookbook-verano-casco",
     "comercial-cafe-boquete",
   ],
-  kitTeaserIds: ["aputure-600c", "sony-fx3", "sigma-35mm"],
+  kitTeaserIds: ["sony-fx3", "sony-50gm", "sony-70-200"],
   aboutExcerpt:
     "Director de fotografía y creador: el mismo ojo en el set y en el canal.",
   aboutBody: [
@@ -53,7 +61,7 @@ export const siteSettingsFixture = {
     "El trabajo es para marcas, productoras y fotógrafos que quieren un par en cámara. No es un reel de drones ni un look de agencia.",
     "La música es parte de quién es —otro canal, otra disciplina— y se queda ahí: una mención, no una galería.",
   ].join("\n\n"),
-  portrait: "/placeholders/portrait.svg",
+  portrait: "/media/srod-portrait.jpg",
 } satisfies z.input<typeof siteSettingsSchema>;
 
 export const projectFixtures = [
@@ -202,48 +210,101 @@ export const kitItemFixtures = [
   {
     id: "sony-fx3",
     name: "Sony FX3",
-    photo: "/placeholders/kit-fx3.svg",
+    photo: "/media/kit-sony-fx3.jpg",
     usageNote:
-      "Cuerpo chico, latitud de verdad. Es la cámara con la que resuelvo la mayoría de encargos y los videos del canal.",
+      "Mi cámara principal. Cuerpo chico, latitud de verdad: resuelve encargos y los videos del canal.",
+    shopUrl: "https://amzn.to/3nfJT5O",
     order: 1,
   },
   {
-    id: "sigma-35mm",
-    name: "Sigma 35mm f/1.4 Art",
-    photo: "/placeholders/kit-35mm.svg",
+    id: "sony-a7rv",
+    name: "Sony α7R V",
+    photo: "/media/kit-sony-a7rv.jpg",
     usageNote:
-      "El 35 es mi “estoy aquí”. Conversación, walk-and-talk, producto a escala humana.",
+      "Mi cámara de fotos. Cuando el encargo pide stills con el mismo ojo que el video.",
+    shopUrl: "https://amzn.to/3LTcmZc",
     order: 2,
   },
   {
-    id: "sony-24-70",
-    name: "Sony 24-70mm GM II",
-    photo: "/placeholders/kit-24-70.svg",
+    id: "dzofilm-vespid-40",
+    name: "DZOFILM Vespid Prime 40mm T2.1",
+    photo: "/media/kit-dzofilm-vespid-40.jpg",
     usageNote:
-      "El zoom para cuando el set no espera a que cambie el prime. Comerciales con ritmo.",
+      "Lente de cine. El 40 para cuando el look tiene que leerse de cine, no de foto.",
+    shopUrl: "https://amzn.to/3D8ty7x",
     order: 3,
   },
   {
-    id: "aputure-600c",
-    name: "Aputure 600c",
-    photo: "/placeholders/kit-600c.svg",
+    id: "sony-50gm",
+    name: "Sony FE 50mm F1.2 GM",
+    photo: "/media/kit-sony-50gm.jpg",
     usageNote:
-      "Una fuente que puedo pintar. Color sólido sin pelear el balance a mitad de toma.",
+      "Mi lente favorito. Conversación, retrato, producto a escala humana.",
+    shopUrl: "https://amzn.to/3ZdD16d",
     order: 4,
   },
   {
-    id: "atomos-ninja",
-    name: "Atomos Ninja V",
-    photo: "/placeholders/kit-ninja.svg",
+    id: "sony-70-200",
+    name: "Sony FE 70-200mm F2.8 GM OSS II",
+    photo: "/media/kit-sony-70-200.jpg",
     usageNote:
-      "Monitor para ver lo que estoy grabando, no lo que el EVF quiere vender.",
+      "El zoom que lo hace todo. Cuando el set no espera a que cambie el prime.",
+    shopUrl: "https://amzn.to/44xWm5m",
     order: 5,
+  },
+  {
+    id: "lg-dualup",
+    name: "Monitor LG DualUP",
+    photo: "/media/kit-lg-dualup.jpg",
+    usageNote:
+      "El raro monitor que recomiendo: más superficie para ver el grado, no el EVF.",
+    shopUrl: "https://amzn.to/48qSN3r",
+    order: 6,
   },
   {
     id: "zoom-f6",
     name: "Zoom F6",
     usageNote:
       "Audio limpio cuando no hay mixer. Si el diálogo no se entiende, la imagen no salva el spot.",
-    order: 6,
+    order: 7,
   },
 ] satisfies z.input<typeof kitItemSchema>[];
+
+export const pickItemFixtures = [
+  {
+    id: "freewell-brandon-li",
+    name: "Brandon Li x Freewell VND/CPL",
+    photo: "/media/pick-freewell.jpg",
+    note: "Kit de filtros de la tienda oficial, con el enlace de afiliado de Srod.",
+    url: "https://freewellgear.com/collections/brandonli-freewell-vnd-cpl-series?sca_ref=12155128.kl57JzqWrGyThgm",
+    cta: "Ver en Freewell",
+    order: 1,
+  },
+  {
+    id: "money-shot-club",
+    name: "Money Shot Club",
+    photo: "/media/pick-moneyshot.jpg",
+    note: "La comunidad de Srod Almenara y David Ruiz para vivir de la cámara.",
+    url: "https://www.skool.com/moneyshotclub/about",
+    cta: "Entrar al club",
+    order: 2,
+  },
+  {
+    id: "arc-pulse",
+    name: "Arc Pulse",
+    photo: "/media/pick-arc.png",
+    note: "Fundas de aluminio; el enlace de Srod lleva el 10% de descuento.",
+    url: "https://arc.cc/?sca_ref=11509078.FhE0FU5sEw",
+    cta: "Ver en Arc",
+    order: 3,
+  },
+  {
+    id: "artlist",
+    name: "Artlist",
+    photo: "/media/pick-artlist.png",
+    note: "Música y assets para video: dos meses extra gratis con este enlace.",
+    url: "https://bit.ly/ArtlistSrodMode",
+    cta: "Probar Artlist",
+    order: 4,
+  },
+] satisfies z.input<typeof pickItemSchema>[];

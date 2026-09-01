@@ -4,11 +4,18 @@ import { useId } from "react";
 type SectionProps = {
   children: ReactNode;
   title?: string;
+  intro?: string;
   className?: string;
   ui?: string;
 };
 
-export function Section({ children, title, className, ui }: SectionProps) {
+export function Section({
+  children,
+  title,
+  intro,
+  className,
+  ui,
+}: SectionProps) {
   const headingId = useId();
 
   return (
@@ -24,6 +31,9 @@ export function Section({ children, title, className, ui }: SectionProps) {
         >
           {title}
         </h2>
+      ) : null}
+      {intro ? (
+        <p className="mt-2 max-w-prose text-muted">{intro}</p>
       ) : null}
       {children}
     </section>

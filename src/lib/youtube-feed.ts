@@ -4,6 +4,7 @@ export type YoutubeVideo = {
   thumbnail: string;
   url: string;
   publishedAt: string;
+  description: string;
 };
 
 export type YoutubeFeedResult =
@@ -12,6 +13,19 @@ export type YoutubeFeedResult =
 
 export const YOUTUBE_FEED_REVALIDATE_SECONDS = 3600;
 export const YOUTUBE_CHANNEL_ID_PATTERN = /^UC[A-Za-z0-9_-]{22}$/;
+
+/** El más reciente va al hero; el resto, a Trabajo destacado. */
+export function splitYoutubeFeedForHome(feed: YoutubeFeedResult): {
+  latest: YoutubeVideo | undefined;
+  rest: YoutubeFeedResult;
+} {
+  if (!feed.ok) {
+    return { latest: undefined, rest: feed };
+  }
+
+  const [latest, ...rest] = feed.videos;
+  return { latest, rest: { ok: true, videos: rest } };
+}
 
 function decodeXml(text: string): string {
   return text
@@ -77,8 +91,13 @@ export function parseYoutubeRss(xml: string): YoutubeVideo[] {
     const thumbnail =
       matchGroup(entry, /<media:thumbnail[^>]*url="([^"]+)"/i) ??
       `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    const description =
+      matchGroup(
+        entry,
+        /<media:description(?:\s[^>]*)?>([\s\S]*?)<\/media:description>/i,
+      ) ?? "";
 
-    return [{ id, title, thumbnail, url, publishedAt }];
+    return [{ id, title, thumbnail, url, publishedAt, description }];
   });
 }
 

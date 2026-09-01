@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Srod Almenara Lab",
+    "locale": "en",
+    "output": "srod-almenara-lab.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "primary-path",
+        "label": "Browse published work",
+        "focus": ["visitors", "vercel", "nextjs", "content-repo", "sanity"],
+        "note": "Public HTTPS request through Vercel ISR into the ContentRepository port."
+      },
+      {
+        "id": "edit-path",
+        "label": "Edit without deploy",
+        "focus": ["srod", "studio", "sanity"],
+        "note": "Srod edits in /studio; public pages stay off this surface."
+      },
+      {
+        "id": "contact-path",
+        "label": "Contact and anti-spam",
+        "focus": ["nextjs", "contact-api", "turnstile", "resend"],
+        "note": "Form POST is verified before Resend mails Srod."
+      }
+    ]
+  },
+  "components": [
+    { "id": "visitors", "type": "external", "label": "Visitors", "sublabel": "clients · fans", "pos": [48, 200], "size": [148, 64] },
+    { "id": "srod", "type": "external", "label": "Srod Almenara", "sublabel": "editor", "pos": [48, 40], "size": [148, 64] },
+    { "id": "vercel", "type": "cloud", "label": "Vercel", "sublabel": "host · ISR", "brand": "vercel", "pos": [280, 200], "size": [140, 64] },
+    { "id": "nextjs", "type": "frontend", "label": "Next.js public lab", "sublabel": "App Router", "brand": "next-js", "pos": [540, 200], "size": [176, 64] },
+    { "id": "studio", "type": "frontend", "label": "Sanity Studio", "sublabel": "/studio · noindex", "pos": [800, 40], "size": [176, 64] },
+    { "id": "content-repo", "type": "backend", "label": "ContentRepository", "sublabel": "Zod port", "pos": [800, 200], "size": [176, 64] },
+    { "id": "sanity", "type": "database", "label": "Sanity", "sublabel": "settings · project · kit", "pos": [1080, 200], "size": [156, 64] },
+    { "id": "youtube", "type": "external", "label": "YouTube", "sublabel": "RSS + nocookie", "brand": "youtube", "pos": [48, 400], "size": [148, 64] },
+    { "id": "contact-api", "type": "backend", "label": "Contact API", "sublabel": "POST /api/contacto", "pos": [540, 400], "size": [176, 64] },
+    { "id": "turnstile", "type": "security", "label": "Turnstile", "sublabel": "verify token", "brand": "cloudflare", "pos": [800, 400], "size": [176, 64] },
+    { "id": "resend", "type": "external", "label": "Resend", "sublabel": "mail to Srod", "pos": [1080, 400], "size": [156, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Vercel deployment", "wraps": ["vercel", "nextjs", "studio", "content-repo"] },
+    { "kind": "security-group", "label": "Studio · not in public nav", "wraps": ["studio"] }
+  ],
+  "connections": [
+    { "id": "visitors-to-vercel", "from": "visitors", "to": "vercel", "label": "HTTPS", "variant": "emphasis", "fromSide": "right", "toSide": "left" },
+    { "id": "vercel-to-nextjs", "from": "vercel", "to": "nextjs", "label": "ISR pages", "variant": "emphasis", "fromSide": "right", "toSide": "left" },
+    { "id": "nextjs-to-repo", "from": "nextjs", "to": "content-repo", "label": "read port", "variant": "emphasis", "fromSide": "right", "toSide": "left" },
+    { "id": "repo-to-sanity", "from": "content-repo", "to": "sanity", "label": "GROQ or fixtures", "variant": "emphasis", "fromSide": "right", "toSide": "left" },
+    { "id": "srod-to-studio", "from": "srod", "to": "studio", "label": "/studio", "fromSide": "right", "toSide": "left" },
+    { "id": "studio-to-sanity", "from": "studio", "to": "sanity", "label": "edit documents", "fromSide": "right", "toSide": "top" },
+    { "id": "nextjs-to-contact", "from": "nextjs", "to": "contact-api", "label": "form POST", "fromSide": "bottom", "toSide": "top", "labelDy": 24 },
+    { "id": "contact-to-turnstile", "from": "contact-api", "to": "turnstile", "label": "verify", "variant": "security", "fromSide": "right", "toSide": "left" },
+    { "id": "contact-to-resend", "from": "contact-api", "to": "resend", "label": "send mail", "fromSide": "bottom", "toSide": "bottom" },
+    { "id": "nextjs-to-youtube", "from": "nextjs", "to": "youtube", "label": "feed + embeds", "fromSide": "left", "toSide": "right" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Users", "items": ["Visitors browse Home, /trabajo, /kit, /sobre, and /contacto", "Srod edits in /studio; that route is noindex and off the public nav"] },
+    { "dot": "emerald", "title": "Primary path", "items": ["HTTPS → Vercel ISR → Next.js → ContentRepository → Sanity", "Until Sanity env is set, the same port serves fixtures"] },
+    { "dot": "amber", "title": "Unknowns", "items": ["Instagram widget vendor unknown (Behold or equivalent)", "Vercel region unknown; Plausible is optional; /presets redirects to the existing shop"] }
+  ]
+}

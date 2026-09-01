@@ -40,8 +40,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           youtubeUrl={settings.youtubeUrl}
           instagramUrl={settings.instagramUrl}
           shopUrl={settings.shopUrl}
+          contactEmail={settings.contactEmail}
           musicUrl={settings.musicUrl}
           extraSocials={settings.extraSocials}
+          availabilityNote={settings.availabilityNote}
         >
           {children}
         </PublicChrome>

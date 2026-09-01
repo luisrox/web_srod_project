@@ -49,7 +49,8 @@ Copia `.env.example` a `.env.local`. Variables:
 | `SANITY_API_READ_TOKEN` / `SANITY_API_WRITE_TOKEN` | Lectura / seed |
 | `SANITY_REVALIDATE_SECRET` | Webhook ISR |
 | `ENABLE_FIXTURE_FALLBACK` | Fallback a fixtures si Sanity cae (prod: off) |
-| `BEHOLD_FEED_URL` | JSON del grid Instagram |
+| `NEXT_PUBLIC_ELFSIGHT_INSTAGRAM_ID` | Widget InstaShow. Vacío = el de Srod; `off` lo apaga |
+| `BEHOLD_FEED_URL` | JSON del grid Instagram (solo si Elfsight está `off`) |
 | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | Analítica sin cookies. Vacío = sin script |
 
 ## Formulario de contacto
@@ -97,21 +98,21 @@ Sin `NEXT_PUBLIC_SANITY_PROJECT_ID` el Studio monta con un id placeholder: la ru
 
 ## Feed de YouTube (Home)
 
-El bloque Proceso (`data-ui="youtube-teaser"`) lee el **RSS público** del canal (`feeds/videos.xml?channel_id=`), cache 1 h. No usa la Data API ni un ID hardcodeado en el componente: el UC va en CMS (`youtubeChannelId`; el fixture es el canal @srodmode). `/c/` y `@handle` no resuelven el RSS.
+El bloque `data-ui="youtube-teaser"` vive dentro de **Trabajo destacado**. Lee el **RSS público** del canal (`feeds/videos.xml?channel_id=`), cache 1 h. No usa la Data API ni un ID hardcodeado en el componente: el UC va en CMS (`youtubeChannelId`; el fixture es el canal @srodmode). `/c/` y `@handle` no resuelven el RSS.
 
-Si el fetch falla, queda el CTA «Ver el canal». Las cards son thumb + enlace a YouTube (el embed sigue solo en hero y cases).
+El video más reciente va al hero; el resto, a **Trabajo destacado**. Los cases de cliente viven en `/trabajo`. Si el fetch falla, queda el CTA «Ver el canal». Las cards son thumb + enlace a YouTube (el embed sigue solo en hero y cases).
 
 ## Operaciones
 
 ### Instagram (Home)
 
-El grid (`data-ui="instagram-teaser"`) no usa Graph API ni app review. Lee el JSON de un widget mantenido (**Behold** u equivalente) con `BEHOLD_FEED_URL` (URL del feed, no un token de Meta en el repo). Cache 1 h.
+El grid (`data-ui="instagram-teaser"`) no usa Graph API ni app review. Por defecto monta el widget **Elfsight InstaShow** que ya está en [srodalmenara.com](https://www.srodalmenara.com/) (`NEXT_PUBLIC_ELFSIGHT_INSTAGRAM_ID`; vacío = el id público de Srod). `off` lo apaga.
 
-**Qué env falta si no hay grid:** en producción, `BEHOLD_FEED_URL` vacío o un fetch fallido → **plan B** (mensaje breve + «Ver el perfil»). En `next dev`, vacío muestra un **preview** con stills del laboratorio (no Unsplash, no un feed de otro cuenta): sirve para ver el grid hasta que Behold esté conectado. Header, Home y Contacto siguen enlazando a `instagramUrl` del CMS.
+Si Elfsight está `off`, puede leer el JSON de **Behold** con `BEHOLD_FEED_URL`. Si tampoco hay feed: embed oficial del perfil (`/embed/`) + «Ver el perfil». En `next dev` con Elfsight off y Behold vacío hay stills de preview del lab. Header, Home y Contacto siguen enlazando a `instagramUrl` del CMS.
 
-**Renovación de token:** Instagram caduca el token de larga duración ~60 días. Renovar en el panel de Behold (o el widget que uses), no en este repo. Si el feed deja de servir JSON, el lab no se rompe: cae al plan B.
+**Renovación:** el feed lo mantiene Elfsight (o Behold). No hay token de Meta en este repo. Si el widget cae, el lab no se rompe: queda el enlace al perfil.
 
-Cero secretos en git: la URL del feed va en `.env.local` / Vercel, no en el código.
+Cero secretos en git: el id del widget es público (va en el HTML). Overrides en `.env.local` / Vercel.
 
 ### Analítica
 

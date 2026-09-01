@@ -191,6 +191,7 @@ export function mapKitItem(
     name: record.name,
     photo: optionalString(record.photo),
     usageNote: record.usageNote,
+    shopUrl: optionalUrl(record.shopUrl),
     order: record.order,
   });
 

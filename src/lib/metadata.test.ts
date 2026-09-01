@@ -4,6 +4,7 @@ import { homePageTitle, pageTitle } from "./metadata";
 import { SITE_NAME } from "./site";
 
 const innerSegments = [
+  "Recomendados",
   "Trabajo",
   "Kit",
   "Sobre",
@@ -13,6 +14,7 @@ const innerSegments = [
 
 describe("pageTitle", () => {
   it("produce titles únicos tipo «Trabajo — Srod Almenara»", () => {
+    expect(pageTitle("Recomendados")).toBe("Recomendados — Srod Almenara");
     expect(pageTitle("Trabajo")).toBe("Trabajo — Srod Almenara");
     expect(pageTitle("Kit")).toBe("Kit — Srod Almenara");
     expect(pageTitle("Sobre")).toBe("Sobre — Srod Almenara");
@@ -26,7 +28,7 @@ describe("pageTitle", () => {
 
 describe("homePageTitle", () => {
   it("combina wordmark y titular, sin copiar el title de las demás rutas", () => {
-    const heroTitle = "Un DP bien geek, con el proceso a la vista";
+    const heroTitle = "Un DP bien geek que hace videos en YouTube";
     const home = homePageTitle(heroTitle);
 
     expect(home).toBe(`${SITE_NAME} — ${heroTitle}`);

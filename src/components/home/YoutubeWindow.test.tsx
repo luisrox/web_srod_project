@@ -19,6 +19,7 @@ const videos: YoutubeVideo[] = [
     thumbnail: "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg",
     url: "https://www.youtube.com/watch?v=aaaaaaaaaaa",
     publishedAt: "2026-01-01T12:00:00+00:00",
+    description: "Look de verano en Casco Viejo.",
   },
   {
     id: "bbbbbbbbbbb",
@@ -26,6 +27,7 @@ const videos: YoutubeVideo[] = [
     thumbnail: "https://i.ytimg.com/vi/bbbbbbbbbbb/hqdefault.jpg",
     url: "https://www.youtube.com/watch?v=bbbbbbbbbbb",
     publishedAt: "2026-02-01T12:00:00+00:00",
+    description: "",
   },
 ];
 
@@ -44,8 +46,19 @@ describe("YoutubeWindow", () => {
     const look = screen.getByRole("link", { name: /Look en Casco/ });
     expect(look).toHaveAttribute("href", videos[0]?.url);
     expect(look).toHaveAttribute("rel", "noopener noreferrer");
-    expect(look.querySelector("img")).toHaveAttribute("src", videos[0]?.thumbnail);
+    expect(look.querySelector("img")).toHaveAttribute(
+      "src",
+      "https://i.ytimg.com/vi/aaaaaaaaaaa/sddefault.jpg",
+    );
     expect(look.querySelector("img")).toHaveAttribute("loading", "lazy");
+    expect(look.querySelector('[data-ui="youtube-card-overlay"]')).toHaveTextContent(
+      "Look de verano en Casco Viejo.",
+    );
+    expect(look.querySelector('[data-ui="youtube-card-overlay"]')).toHaveClass(
+      "opacity-0",
+      "group-hover:opacity-100",
+    );
+    expect(block?.querySelector("ul")).toHaveClass("sm:grid-cols-2");
 
     expect(screen.getByRole("link", { name: /Café en Boquete/ })).toBeVisible();
     expect(
