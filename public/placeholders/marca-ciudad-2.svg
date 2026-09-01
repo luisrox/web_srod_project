@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Marca ciudad · interior">
+  <rect width="100%" height="100%" fill="#f7f5f2"/>
+  <rect x="48" y="48" width="1504" height="804" fill="#ffffff" stroke="#e6e1d9" stroke-width="2"/>
+  <text x="96" y="140" font-family="system-ui,sans-serif" font-size="22" letter-spacing="4" fill="#5e574e">STILL</text>
+  <text x="96" y="220" font-family="system-ui,sans-serif" font-size="44" fill="#171512">Marca ciudad · interior</text>
+  <rect x="96" y="760" width="220" height="8" fill="#b23d18"/>
+</svg>

@@ -1,21 +1,59 @@
-import { GalleryBox } from "@/components/GalleryBox";
-import { SITE_NAME } from "@/lib/site";
+import type { Metadata } from "next";
 
-export default function Home() {
+import { AboutExcerpt } from "@/components/home/AboutExcerpt";
+import { ContactCta } from "@/components/home/ContactCta";
+import { FeaturedWork } from "@/components/home/FeaturedWork";
+import { Hero } from "@/components/home/Hero";
+import { InstagramGrid } from "@/components/home/InstagramGrid";
+import { KitTeaser } from "@/components/home/KitTeaser";
+import { Whereabouts } from "@/components/home/Whereabouts";
+import { YoutubeWindow } from "@/components/home/YoutubeWindow";
+import { content } from "@/content";
+import { getInstagramPosts } from "@/lib/instagram";
+import { homePageTitle } from "@/lib/metadata";
+import { HERO_STILL_ALT, HERO_STILL_SRC, socialShareImages } from "@/lib/og";
+import { getYoutubeFeed } from "@/lib/youtube-feed";
+
+export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await content.getSiteSettings();
+
+  return {
+    title: homePageTitle(settings.heroTitle),
+    description: settings.heroSubtitle,
+    ...socialShareImages(HERO_STILL_SRC, HERO_STILL_ALT),
+  };
+}
+
+export default async function Home() {
+  const settings = await content.getSiteSettings();
+  const [featuredProjects, kitTeaser, youtubeFeed, instagramPosts] =
+    await Promise.all([
+      content.getFeaturedProjects(),
+      content.getKitTeaser(),
+      getYoutubeFeed({
+        channelId: settings.youtubeChannelId,
+        youtubeUrl: settings.youtubeUrl,
+        limit: settings.youtubeFeedCount,
+      }),
+      getInstagramPosts(),
+    ]);
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-section">
-      <GalleryBox as="section" className="px-8 py-section-sm sm:px-12">
-        <p className="text-sm font-medium tracking-[0.2em] text-muted uppercase">
-          Laboratorio
-        </p>
-        <h1 className="mt-4 font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          {SITE_NAME}
-        </h1>
-        <p className="mt-4 max-w-prose text-muted">
-          Dirección de fotografía desde Panamá. Cámaras, lentes y color, con el
-          proceso a la vista.
-        </p>
-      </GalleryBox>
-    </main>
+    <>
+      <Hero
+        heroTitle={settings.heroTitle}
+        heroSubtitle={settings.heroSubtitle}
+        heroYoutubeVideoId={settings.heroYoutubeVideoId}
+      />
+      <AboutExcerpt excerpt={settings.aboutExcerpt} />
+      <FeaturedWork projects={featuredProjects} />
+      <InstagramGrid href={settings.instagramUrl} posts={instagramPosts} />
+      <YoutubeWindow href={settings.youtubeUrl} feed={youtubeFeed} />
+      <KitTeaser items={kitTeaser} />
+      <Whereabouts text={settings.whereaboutsText} />
+      <ContactCta shopUrl={settings.shopUrl} />
+    </>
   );
 }

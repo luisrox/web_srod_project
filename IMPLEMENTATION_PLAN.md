@@ -15,6 +15,22 @@ Documento de trabajo para implementar [SPEC.md](./SPEC.md) con un LLM de generac
 
 ---
 
+## Estado de avance
+
+| Paso | Estado | Verificado |
+|---|---|---|
+| 01 — Scaffold y arnés de pruebas | Hecho | `npm test` (16 pruebas), `lint`, `typecheck`, `build` en verde; `/` responde 200 con `<html lang="es">` y `h1` = "Srod Almenara" |
+| 02 — Tokens y superficie de galería clara | Hecho | `tokens.ts` ↔ `tokens.css` con paridad probada, `GalleryBox` integrado en la Home, `:focus-visible` global, fuentes `next/font` en el layout |
+| 03–20 | Pendientes | — |
+
+Deuda conocida al cerrar el paso 02 (se resuelve en los pasos indicados, no es un paso extra):
+
+- La Home tiene un párrafo de relleno hardcodeado que menciona Panamá. Sale en el paso 03 (titular desde el repositorio) y el paso 07 lo prohíbe en el hero por prueba.
+- `public/` todavía no existe. La estrena el paso 03 con `/public/placeholders/`; el favicon llega en el paso 20.
+- El e2e de humo requiere `npx playwright install chromium` en la máquina; sin el binario los 3 specs fallan por entorno, no por código.
+
+---
+
 ## Principios que gobiernan todos los pasos
 
 - **TDD:** prueba que falla → implementación mínima → refactor. Nada de código de producto sin una prueba que lo justifique (unitaria, de componente o e2e, según el paso).
@@ -46,6 +62,18 @@ Estas decisiones evitan que cada prompt reinvente el stack.
 | Tests | Vitest + Testing Library + Playwright | Unit/componentes + viaje de aceptación |
 | Hosting | Vercel (ISR en cases) | Spec §8 |
 
+### Restricciones de la versión instalada (Next.js 16)
+
+El repo corre **Next.js 16 con React 19**. No es el Next.js de la memoria de un LLM: varias APIs que aparecen en tutoriales de la 13/14 ya no existen. Reglas duras para todos los pasos:
+
+- **APIs de request asíncronas.** `params` y `searchParams` en `page`, `layout`, `route`, `generateMetadata`, `icon` y `opengraph-image`, más `cookies()`, `headers()` y `draftMode()`, son *promesas*. Hay que `await`. El shim síncrono de la 15 se eliminó: acceder a `params.slug` directo revienta en runtime. Afecta a los pasos 04, 10, 11, 16 y 20. `npx next typegen` genera los helpers `PageProps` / `LayoutProps` / `RouteContext`.
+- **Turbopack es el bundler por defecto** en `dev` y `build`. No añadas configuración de webpack.
+- **`next lint` no existe.** El script `lint` invoca el CLI de ESLint (ya está así en `package.json`).
+- **Sin `middleware.ts`.** La convención se renombró a `proxy.ts` (solo runtime Node). Ningún paso de este plan necesita interceptar peticiones: el redirect de `/presets` va en `redirects()` de `next.config.ts`, no en proxy.
+- **Caché.** Usa `fetch(url, { next: { revalidate } })` y `export const revalidate` por segmento. No uses `unstable_cache`. Si necesitas `revalidateTag`, la firma es `revalidateTag(tag, profile)`: con un solo argumento lanza error.
+- **Node ≥ 20.9** (ver la nota de Node del README antes de subir dependencias de test).
+- Cada paso corre además `npm run typecheck`: TypeScript `strict` con `noUnusedLocals` no perdona archivos huérfanos a medio conectar.
+
 ### Árbol de carpetas (no desviarse)
 
 ```
@@ -59,8 +87,10 @@ src/
   sanity/              # schemas, client, groq (a partir del paso CMS)
 tests/
   e2e/                 # Playwright
-public/                # posters, stills placeholder, favicon
+public/                # placeholders/ (stills, posters) desde el paso 03; favicon en el paso 20
 ```
+
+Las carpetas se crean en el paso que las estrena: el repo no versiona directorios vacíos. Dentro de `components/` los subgrupos por superficie (`home/`, `work/`, `kit/`, `contact/`) los abre el paso que los usa.
 
 Alias `@/*` → `src/*`.
 
@@ -161,7 +191,7 @@ Dejar un proyecto Next.js (App Router) + TypeScript strict + Tailwind CSS que ar
 STACK Y HERRAMIENTAS
 - Next.js App Router (versión LTS estable actual), React, TypeScript strict (no loosen).
 - Tailwind CSS.
-- ESLint (config Next) + scripts npm: `dev`, `build`, `start`, `lint`, `test`, `test:e2e`.
+- ESLint (config Next, vía CLI de ESLint: `next lint` no existe en Next 16) + scripts npm: `dev`, `build`, `start`, `lint`, `typecheck`, `test`, `test:e2e`.
 - Vitest + @testing-library/react + jsdom para unit/component.
 - Playwright para e2e, carpeta tests/e2e.
 - Alias `@/*` → `src/*`.
@@ -269,7 +299,8 @@ project: order, featured flag opcional (la home usa settings.featuredProjectSlug
 kitItem: id, name, photo opcional, usageNote, order.
 
 FIXTURES (calidad de lanzamiento)
-- 5 proyectos (dentro de 3–8) de DP/comercial/lookbook, nombres creíbles, slugs en español, YouTube IDs dummy documentados, stills en /public/placeholders/.
+- 5 proyectos (dentro de 3–8) de DP/comercial/lookbook, nombres creíbles, slugs en español, YouTube IDs dummy documentados, stills en /public/placeholders/ (esta carpeta la estrenas aquí).
+- De esos 5, **cuatro con ficha técnica rica** (cámara, lentes, iluminación, look, notas) y **uno sin ningún campo geek**. El paso 11 necesita ese caso para probar que el toggle no aparece; déjalo listo ahora en vez de reescribir fixtures después.
 - 6 piezas de kit (p. ej. Sony FX3, un prime, un zoom, luz, monitor, audio) con “por qué” corto, no specs de fabricante.
 - Copy de hero: evolución del tagline “Un DP bien geek que hace videos en YouTube” (DP + geek + cámaras/proceso; YouTube como prueba, no definición entera).
 - aboutExcerpt corto; contacto srod@srodalmenara.com; YT https://www.youtube.com/c/srodmode; shopUrl al sitio actual de presets (https://www.srodalmenara.com/ o path /presets — documenta la URL en el fixture).
@@ -283,7 +314,7 @@ src/content/index.ts exporta `content: ContentRepository` (instancia fixtures).
 src/domain/schemas.ts + tipos inferidos.
 
 INTEGRACIÓN
-La página `/` es async y llama getSiteSettings() para titular/subtítulo. SITE_NAME sigue en src/lib/site.ts.
+La página `/` es async y llama getSiteSettings() para titular/subtítulo. SITE_NAME sigue en src/lib/site.ts. Sustituye el párrafo de relleno que el paso 02 dejó hardcodeado en la Home (el que menciona Panamá): la ubicación vive en aboutBody, nunca en el gancho.
 
 FUERA DE ALCANCE
 Sanity, header, páginas /trabajo /kit /sobre /contacto, embeds reales de feed.
@@ -315,13 +346,14 @@ RUTAS (exactas)
 
 TDD (obligatorio)
 1. Extiende tests/e2e/smoke.spec.ts: cada ruta de la tabla anterior (usando un slug real de fixtures para el case) devuelve 200 y un h1 distintivo.
-2. e2e o request: `/trabajo/este-slug-no-existe` devuelve 404.
+2. e2e o request: `/trabajo/este-slug-no-existe` devuelve 404 y muestra el copy del not-found propio, no la pantalla por defecto de Next.
 3. Vitest de un helper src/lib/metadata.ts: `pageTitle(segment)` produce titles únicos tipo "Trabajo — Srod Almenara", "Kit — Srod Almenara", etc. Home usa el patrón del hero o "Srod Almenara" + titular, sin duplicar el mismo title en todas las rutas.
 4. Prueba de generateStaticParams o de getProjectBySlug en la página de case: slugs de fixtures cubiertos.
 
 IMPLEMENTACIÓN
 - Stubs con h1 + un párrafo corto en español que describa el rol de la página (no lorem). /trabajo puede listar títulos como enlaces ya (barato e integra el repositorio); si listas, usa getProjects() — no inventes un segundo array.
-- /trabajo/[slug]: muestra al menos title del project o notFound().
+- /trabajo/[slug]: muestra al menos title del project o notFound(). En Next 16 `params` es una promesa: `const { slug } = await params`, también dentro de generateMetadata.
+- src/app/not-found.tsx: 404 propio en español, con el mismo lienzo tokenizado y un enlace de vuelta a `/` y a `/trabajo`. Sin él, el "404 personalizado" del objetivo no existe.
 - Layout raíz: no dupliques nav todavía si no existe (el header es el paso 05); sí puedes poner un <main id="contenido"> para skip link futuro.
 - Metadata export en cada page (title + description). Descriptions útiles, no vacías.
 
@@ -561,7 +593,7 @@ TDD (obligatorio)
 4. No muestres etiquetas de ficha técnica (Cámara, Codec, etc.) todavía aunque el fixture tenga esos campos — se añaden en el paso 11. Añade un assert de que `data-ui="case-geek"` no existe.
 
 IMPLEMENTACIÓN
-src/components/work/CaseStudy.tsx + src/app/trabajo/[slug]/page.tsx. ISR: `export const revalidate` razonable (p. ej. 60) para alinearse con Vercel/ISR de la spec, aunque los datos aún sean fixtures.
+src/components/work/CaseStudy.tsx + src/app/trabajo/[slug]/page.tsx. `params` es una promesa (Next 16): `await` en la página y en generateMetadata. ISR: `export const revalidate` razonable (p. ej. 60) para alinearse con Vercel/ISR de la spec, aunque los datos aún sean fixtures.
 
 FUERA DE ALCANCE
 Toggle, Sanity, related videos de YouTube, páginas extra.
@@ -695,6 +727,9 @@ EMAIL DE RESPALDO
 - Botón "Copiar" (aria-live al copiar) + enlace mailto:
 - Prueba del botón copiar con clipboard mock
 
+UBICACIÓN Y DISPONIBILIDAD
+SPEC §2 coloca "basado en Panamá + remoto / internacional" en About **y en contacto** (nunca en el hero). Añade en el aside de /contacto una línea corta de ubicación y disponibilidad remota. Si la quieres editable, usa un campo opcional `availabilityNote` en siteSettings (Zod + fixture + pruebas de dominio del paso 03, y schema de Sanity en el paso 16); si no, tómala de aboutBody. Elige una sola fuente y no dupliques el texto.
+
 REDES
 YouTube + Instagram desde settings, en el main de contacto además del header.
 
@@ -705,6 +740,7 @@ TDD (obligatorio)
 4. Copiar email: mock navigator.clipboard.writeText.
 5. /privacidad: texto mínimo en español sobre el formulario (qué se recoge, para qué, que no hay cookies de marketing de este form). No política genérica anglosajona de 40 páginas.
 6. e2e: /contacto muestra el email de respaldo y el form.
+7. /contacto menciona Panamá y disponibilidad remota o internacional (SPEC §2).
 
 IMPLEMENTACIÓN
 src/components/contact/ContactForm.tsx (client) + ContactAside.tsx. page.tsx server obtiene settings.
@@ -902,17 +938,27 @@ Cierra calidad de lanzamiento: descubribilidad, ritmo cinemático respetuoso, an
 ```text
 Eres un ingeniero senior. Implementa el PASO 20 (cierre). Lee SPEC.md §3 Motion, §7 SEO/analítica, §9 calidad, §11 criterios de aceptación. No añadas e-commerce, blog, dark mode ni i18n. Trabaja por sub-bloques con pruebas en cada uno antes del siguiente.
 
-SUB-BLOQUE A — SEO
+SUB-BLOQUE A — SEO y descubribilidad
+- `metadataBase` en el layout raíz a partir de `NEXT_PUBLIC_SITE_URL` (con fallback a https://www.srodalmenara.com y a la URL de preview de Vercel). Sin base absoluta, las OG cards y el sitemap salen con rutas relativas y no sirven. Añade la variable a .env.example.
 - title/description únicos (ya hay helper; revisa Home, case, kit, sobre, contacto, privacidad).
-- OG/Twitter: still del hero en Home; still principal del case en /trabajo/[slug].
+- OG/Twitter: still del hero en Home; still principal del case en /trabajo/[slug]. `openGraph.locale = "es"`.
 - sitemap.ts y robots.txt (allow público, disallow /studio, sitemap url).
+- Favicon e iconos de app: `src/app/icon` + `apple-icon` (o favicon.ico en public) con el wordmark/acento de los tokens del paso 02. Es lo único que quedaba pendiente de `public/` en el árbol de carpetas. Ojo: en Next 16 estos ficheros reciben `params` como promesa si los generas con código.
 - slugs ya en español.
 - JSON-LD Person en layout o Home (DP, nombre, url, sameAs YT/IG).
 - JSON-LD CreativeWork en cada case (nombre, fecha/año, video, imagen).
 TDD A:
-- Tests de generateMetadata de un case (og image definida).
-- Test de sitemap: incluye /, /trabajo, cada slug fixture, /kit, /sobre, /contacto, /privacidad; no incluye /studio.
+- Tests de generateMetadata de un case (og image definida y absoluta).
+- Test de sitemap: incluye /, /trabajo, cada slug fixture, /kit, /sobre, /contacto, /privacidad; no incluye /studio ni /presets.
 - Test de JSON-LD: script type=application/ld+json parseable y @type correcto (Person y CreativeWork).
+
+SUB-BLOQUE A2 — Continuidad de la tienda vieja
+SPEC §4 y §8 exigen preservar `/presets` (o `shop.`) hacia el sitio actual para no romper compras; hasta ahora eso solo vivía como nota de README y como enlace de footer.
+- `redirects()` en next.config.ts: `/presets` → URL de la tienda actual (permanente=false mientras la migración esté sin decidir, para no cachear un 308 que luego moleste). Documenta la URL en un único sitio; no la dupliques en el JSX.
+- No uses `proxy.ts` para esto (Next 16 renombró middleware y aquí no hace falta).
+TDD A2:
+- Test del array de redirects importado desde next.config.ts (origen `/presets`, destino = URL documentada), o e2e que compruebe el 3xx y el `location`.
+- El e2e de aceptación sigue afirmando que no existe checkout propio: el redirect no es e-commerce nuevo.
 
 SUB-BLOQUE B — Motion
 - Transiciones de ruta corte/fade con Motion. Parallax suave SOLO en hero still/video wrapper, no en texto de formulario.
@@ -944,6 +990,7 @@ No existe ruta /blog ni /eventos ni checkout.
 
 SUB-BLOQUE F — Docs
 README actualizado: stack, env completo, CMS (Studio, seed), Instagram token, Turnstile, Resend, Plausible, cutover DNS (srodalmenara.com → Vercel; preservar presets/Squarespace). No escribas un segundo SPEC.
+Añade además una **checklist de aceptación manual** para los criterios de SPEC §11 que ningún test con fixtures puede demostrar: con Sanity conectado, cambiar el titular, un proyecto y una pieza de kit en Studio y verlos en el lab **sin deploy** (revalidate o webhook del paso 17). Deja escrito qué se mira y en qué orden; es el criterio con el que Srod acepta la fase 1.
 
 INTEGRACIÓN
 Todo vive en layout, metadata, componentes ya usados. Cero demos /playground.
@@ -966,6 +1013,9 @@ Antes de dar por cerrado un paso, verifica:
 | ¿El copy es lorem/ipsum? | No |
 | ¿Se implementó el paso siguiente “por adelantado”? | No |
 | ¿Sanity y la UI discrepan en campos? | No: Zod manda |
+| ¿`npm run lint`, `npm run typecheck` y `npm run build` pasan? | Sí, los tres |
+| ¿Se leyó `params`, `searchParams` o `cookies()` sin `await`? | No: en Next 16 son promesas |
+| ¿El paso deja algo de SPEC.md sin cubrir y sin nota en Estado de avance? | No |
 
 ---
 
@@ -978,6 +1028,7 @@ Antes de dar por cerrado un paso, verifica:
 - Google Analytics / cookies de marketing  
 - WebGL  
 - Meta Graph API como plan A de Instagram  
+- APIs que Next 16 ya eliminó o renombró: `next lint`, `middleware.ts`, `unstable_cache`, `params`/`searchParams`/`cookies()` síncronos, `revalidateTag` con un solo argumento  
 
 ---
 

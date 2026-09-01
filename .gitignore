@@ -21,8 +21,9 @@ playwright/.cache/
 .env.local
 .env.*.local
 
-# vercel / typescript
+# vercel / typescript / sanity
 .vercel
+.sanity
 *.tsbuildinfo
 
 # sistema
