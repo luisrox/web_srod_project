@@ -5,9 +5,14 @@ import type { YoutubeFeedResult } from "@/lib/youtube-feed";
 type FeaturedWorkProps = {
   youtubeUrl: string;
   youtubeFeed: YoutubeFeedResult;
+  limit?: number;
 };
 
-export function FeaturedWork({ youtubeUrl, youtubeFeed }: FeaturedWorkProps) {
+export function FeaturedWork({
+  youtubeUrl,
+  youtubeFeed,
+  limit,
+}: FeaturedWorkProps) {
   return (
     <Section
       title="Trabajo destacado"
@@ -15,7 +20,7 @@ export function FeaturedWork({ youtubeUrl, youtubeFeed }: FeaturedWorkProps) {
       ui="featured-work"
       className="mx-auto max-w-6xl px-6 py-section-sm"
     >
-      <YoutubeWindow href={youtubeUrl} feed={youtubeFeed} />
+      <YoutubeWindow href={youtubeUrl} feed={youtubeFeed} limit={limit} />
     </Section>
   );
 }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { youtubeVideoIdSchema } from "@/domain/schemas";
+import { youtubePlaylistEmbedSrc } from "@/lib/youtube-feed";
 
 export const youtubeEmbedPropsSchema = z.strictObject({
   videoId: youtubeVideoIdSchema,
@@ -58,6 +59,7 @@ export function YouTubeEmbed(props: YouTubeEmbedProps) {
             fill
             sizes="(min-width: 56rem) 56rem, 100vw"
             priority={parsed.priority}
+            unoptimized={parsed.posterSrc.startsWith("https://")}
             className="object-cover"
           />
           <button
@@ -72,6 +74,29 @@ export function YouTubeEmbed(props: YouTubeEmbedProps) {
           </button>
         </>
       )}
+    </div>
+  );
+}
+
+export function YoutubePlaylistEmbed({
+  playlistId,
+  title,
+}: {
+  playlistId: string;
+  title: string;
+}) {
+  return (
+    <div
+      data-ui="youtube-playlist-embed"
+      className="relative aspect-video overflow-hidden bg-ink"
+    >
+      <iframe
+        title={title}
+        src={youtubePlaylistEmbedSrc(playlistId)}
+        className="absolute inset-0 h-full w-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
     </div>
   );
 }

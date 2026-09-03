@@ -1,10 +1,21 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import { GalleryBox } from "@/components/GalleryBox";
 import { ButtonLink } from "@/components/TextLink";
-import type { YoutubeFeedResult, YoutubeVideo } from "@/lib/youtube-feed";
+import { loadHomeYoutubeFeed } from "@/lib/youtube-feed-client";
+import {
+  isYoutubeShort,
+  splitYoutubeFeedForHome,
+  type YoutubeFeedResult,
+  type YoutubeVideo,
+} from "@/lib/youtube-feed";
 
 type YoutubeWindowProps = {
   href: string;
   feed: YoutubeFeedResult;
+  limit?: number;
 };
 
 function cardThumbnail(video: YoutubeVideo): string {
@@ -13,10 +24,32 @@ function cardThumbnail(video: YoutubeVideo): string {
 
 /**
  * Thumbs grandes + overlay al hover, no N iframes: el embed queda en hero/cases.
- * Si el RSS falla, solo el CTA — sin grid vacío de cards rotas.
+ * Si el RSS del render falla, pide /api/youtube-feed para rellenar el grid.
  */
-export function YoutubeWindow({ href, feed }: YoutubeWindowProps) {
-  const videos = feed.ok ? feed.videos : [];
+export function YoutubeWindow({ href, feed, limit = 6 }: YoutubeWindowProps) {
+  const [videos, setVideos] = useState(feed.ok ? feed.videos : []);
+
+  useEffect(() => {
+    if (videos.length > 0 || process.env.VITEST) {
+      return;
+    }
+
+    let cancelled = false;
+    void loadHomeYoutubeFeed().then((result) => {
+      const { rest } = splitYoutubeFeedForHome(result);
+      if (!cancelled && rest.ok) {
+        setVideos(
+          rest.videos
+            .filter((video) => !isYoutubeShort(video))
+            .slice(0, limit),
+        );
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [limit, videos.length]);
 
   return (
     <div data-ui="youtube-teaser" className="mt-6">

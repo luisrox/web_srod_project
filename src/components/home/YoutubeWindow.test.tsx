@@ -77,6 +77,7 @@ describe("YoutubeWindow", () => {
     const block = document.querySelector('[data-ui="youtube-teaser"]');
     expect(block?.querySelectorAll("img")).toHaveLength(0);
     expect(block?.querySelector("ul")).toBeNull();
+    expect(block?.querySelector('[data-ui="youtube-playlist-embed"]')).toBeNull();
     expect(
       screen.getByRole("link", { name: /Ver el canal/ }),
     ).toBeVisible();

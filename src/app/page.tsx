@@ -14,7 +14,9 @@ import { homePageTitle } from "@/lib/metadata";
 import { HERO_STILL_ALT, HERO_STILL_SRC, socialShareImages } from "@/lib/og";
 import {
   getYoutubeFeed,
+  isYoutubeShort,
   splitYoutubeFeedForHome,
+  youtubeLongFormPlaylistId,
 } from "@/lib/youtube-feed";
 
 export const revalidate = 60;
@@ -43,21 +45,34 @@ export default async function Home() {
   ]);
   const { latest, rest } = splitYoutubeFeedForHome(youtubeFeed);
   const processFeed = rest.ok
-    ? { ok: true as const, videos: rest.videos.slice(0, settings.youtubeFeedCount) }
+    ? {
+        ok: true as const,
+        videos: rest.videos
+          .filter((video) => !isYoutubeShort(video))
+          .slice(0, settings.youtubeFeedCount),
+      }
     : rest;
+  const longFormPlaylistId = youtubeLongFormPlaylistId(
+    settings.youtubeChannelId,
+  );
 
   return (
     <>
       <Hero
         heroTitle={settings.heroTitle}
         heroSubtitle={settings.heroSubtitle}
-        heroYoutubeVideoId={latest?.id ?? settings.heroYoutubeVideoId}
+        heroYoutubeVideoId={latest?.id}
         heroVideoTitle={latest?.title ?? HERO_STILL_ALT}
         heroPosterSrc={latest?.thumbnail ?? HERO_STILL_SRC}
+        heroPlaylistId={longFormPlaylistId ?? undefined}
         portrait={settings.portrait}
       />
       <Reveal>
-        <FeaturedWork youtubeUrl={settings.youtubeUrl} youtubeFeed={processFeed} />
+        <FeaturedWork
+          youtubeUrl={settings.youtubeUrl}
+          youtubeFeed={processFeed}
+          limit={settings.youtubeFeedCount}
+        />
       </Reveal>
       <Reveal>
         <InstagramGrid

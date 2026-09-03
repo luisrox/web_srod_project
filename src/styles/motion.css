@@ -1,5 +1,5 @@
-/* Marco del modal y entrada/salida. El revelado del home lo anima
-   `motion` en Reveal.tsx (estilos inline), no este archivo. */
+/* Marco del modal y entrada/salida. El revelado del home no usa
+   opacity:0 (en Netlify el HTML estático se quedaba invisible). */
 
 @keyframes srod-modal-backdrop-in {
   from {
@@ -79,5 +79,21 @@
 
   [data-ui="contact-modal"][data-leaving] [data-ui="contact-modal-panel"] {
     animation: srod-modal-panel-out 0.28s ease-in both;
+  }
+}
+
+[data-ui="reveal"] {
+  transform: translate3d(0, 2.25rem, 0);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-ui="reveal"][data-shown="true"] {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="reveal"] {
+    transform: none;
+    transition: none;
   }
 }

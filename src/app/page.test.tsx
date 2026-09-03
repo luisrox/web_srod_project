@@ -114,12 +114,13 @@ describe("Home", () => {
     ).toHaveAttribute("src", settings.portrait);
     expect(screen.getByText(settings.heroTitle)).toBeVisible();
     expect(screen.getByText(settings.heroSubtitle)).toBeVisible();
-    expect(hero?.querySelector('[data-ui="youtube-embed"]')).not.toBeNull();
+    expect(hero?.querySelector('[data-ui="youtube-embed"]')).toBeNull();
     expect(
-      screen.getByRole("button", {
-        name: "Reproducir Reel de dirección de fotografía",
-      }),
-    ).toBeVisible();
+      hero?.querySelector('[data-ui="youtube-playlist-embed"] iframe'),
+    ).toHaveAttribute(
+      "src",
+      expect.stringContaining("list=UULF0JZGMS9SBmv3fPVSqZh4zQ"),
+    );
     expect(hero?.textContent).not.toMatch(/YouTube es la prueba/i);
     expect(hero?.textContent).not.toMatch(/Laboratorio/i);
   });
@@ -337,12 +338,15 @@ describe("Home", () => {
     ).toHaveAttribute("href", settings.youtubeUrl);
   });
 
-  it("si el feed de YouTube falla, el enlace al canal sigue y no hay cards", async () => {
+  it("si el feed de YouTube falla, el grid espera datos y el CTA al canal sigue", async () => {
     const settings = await content.getSiteSettings();
     await renderHome();
 
     const youtube = document.querySelector('[data-ui="youtube-teaser"]');
     expect(youtube?.querySelector("ul")).toBeNull();
+    expect(
+      youtube?.querySelector('[data-ui="youtube-playlist-embed"]'),
+    ).toBeNull();
     expect(youtube?.querySelector(`a[href="${settings.youtubeUrl}"]`)).not.toBeNull();
     expect(
       within(youtube as HTMLElement).getByRole("link", { name: /Ver el canal/ }),

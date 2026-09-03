@@ -3,15 +3,16 @@ import Image from "next/image";
 import { ABOUT_PORTRAIT_ALT } from "@/components/about/AboutBio";
 import { GalleryBox } from "@/components/GalleryBox";
 import { HeroParallax } from "@/components/home/HeroParallax";
-import { YouTubeEmbed } from "@/components/YouTubeEmbed";
+import { HomeHeroMedia } from "@/components/home/HomeHeroMedia";
 import { SITE_NAME } from "@/lib/site";
 
 type HeroProps = {
   heroTitle: string;
   heroSubtitle: string;
-  heroYoutubeVideoId: string;
+  heroYoutubeVideoId?: string;
   heroVideoTitle: string;
   heroPosterSrc: string;
+  heroPlaylistId?: string;
   portrait: string;
 };
 
@@ -21,6 +22,7 @@ export function Hero({
   heroYoutubeVideoId,
   heroVideoTitle,
   heroPosterSrc,
+  heroPlaylistId,
   portrait,
 }: HeroProps) {
   return (
@@ -46,11 +48,11 @@ export function Hero({
         </div>
         <div className="mt-8">
           <HeroParallax>
-            <YouTubeEmbed
+            <HomeHeroMedia
               videoId={heroYoutubeVideoId}
               title={heroVideoTitle}
               posterSrc={heroPosterSrc}
-              priority
+              playlistId={heroPlaylistId}
             />
           </HeroParallax>
         </div>
