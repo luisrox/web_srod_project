@@ -1,0 +1,83 @@
+/* Marco del modal y entrada/salida. El revelado del home lo anima
+   `motion` en Reveal.tsx (estilos inline), no este archivo. */
+
+@keyframes srod-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes srod-modal-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes srod-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 2rem, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes srod-modal-panel-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 0.8rem, 0) scale(0.985);
+  }
+}
+
+[data-ui="contact-modal-panel"] {
+  max-height: calc(100dvh - 6rem);
+  overflow: auto;
+  border: 5px solid var(--srod-color-line);
+  border-radius: var(--srod-radius-gallery);
+  background: var(--srod-color-surface);
+  box-shadow: var(--srod-shadow-gallery);
+}
+
+[data-ui="contact-modal-panel"] [data-ui="gallery-box"] {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+[data-ui="turnstile-slot"] iframe {
+  min-height: 65px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  [data-ui="contact-modal-backdrop"] {
+    animation: srod-modal-backdrop-in 0.4s ease-out both;
+  }
+
+  [data-ui="contact-modal-panel"] {
+    animation: srod-modal-panel-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  [data-ui="contact-modal"][data-leaving] [data-ui="contact-modal-backdrop"] {
+    animation: srod-modal-backdrop-out 0.28s ease-in both;
+  }
+
+  [data-ui="contact-modal"][data-leaving] [data-ui="contact-modal-panel"] {
+    animation: srod-modal-panel-out 0.28s ease-in both;
+  }
+}

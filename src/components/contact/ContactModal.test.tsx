@@ -45,6 +45,19 @@ describe("ContactModal", () => {
     const dialog = screen.getByRole("dialog", { name: "Contacto" });
     expect(dialog).toBeVisible();
     expect(
+      document.querySelector('[data-ui="contact-modal-panel"]'),
+    ).not.toBeNull();
+    expect(document.querySelector('[data-ui="contact-modal"]')).toHaveClass(
+      "py-12",
+      "sm:py-16",
+    );
+    expect(
+      document.querySelector('[data-ui="contact-modal-accent"]'),
+    ).toBeNull();
+    expect(
+      document.querySelector('[data-ui="contact-modal-backdrop"]'),
+    ).toHaveClass("backdrop-blur-md");
+    expect(
       within(dialog).getByRole("form", { name: "Formulario de contacto" }),
     ).toBeVisible();
     expect(within(dialog).getByLabelText("Nombre")).toHaveAttribute(

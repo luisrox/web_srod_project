@@ -145,27 +145,13 @@ describe("Home", () => {
     expect(metadata.openGraph?.locale).toBe("es");
   });
 
-  it("muestra el extracto About y el enlace a /sobre", async () => {
-    const settings = await content.getSiteSettings();
+  it("no duplica Sobre Srod: el extracto del home no está", async () => {
     await renderHome();
 
-    expect(screen.getByText(settings.aboutExcerpt)).toBeVisible();
-    expect(screen.getByRole("link", { name: "Leer sobre Srod" })).toHaveAttribute(
-      "href",
-      "/sobre",
-    );
-
-    const instagram = document.querySelector('[data-ui="instagram-teaser"]');
-    const about = document.querySelector('[data-ui="about-excerpt"]');
-    expect(instagram && about).toBeTruthy();
+    expect(document.querySelector('[data-ui="about-excerpt"]')).toBeNull();
     expect(
-      Boolean(
-        instagram &&
-          about &&
-          instagram.compareDocumentPosition(about) &
-            Node.DOCUMENT_POSITION_FOLLOWING,
-      ),
-    ).toBe(true);
+      screen.queryByRole("link", { name: "Leer sobre Srod" }),
+    ).toBeNull();
   });
 
   it("en Trabajo destacado lista el feed de YouTube y no stills de fixture", async () => {
@@ -363,12 +349,17 @@ describe("Home", () => {
     ).toBeVisible();
   });
 
-  it("el CTA de contacto apunta a /contacto", async () => {
+  it("el CTA de contacto abre el diálogo y no navega a /contacto", async () => {
     await renderHome();
 
     const cta = document.querySelector('[data-ui="contact-cta"]');
+    const button = within(cta as HTMLElement).getByRole("button", {
+      name: "Contacto",
+    });
+
+    expect(button).toHaveAttribute("aria-haspopup", "dialog");
     expect(
-      within(cta as HTMLElement).getByRole("link", { name: "Contacto" }),
-    ).toHaveAttribute("href", "/contacto");
+      within(cta as HTMLElement).queryByRole("link", { name: "Contacto" }),
+    ).toBeNull();
   });
 });

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
-import { AboutExcerpt } from "@/components/home/AboutExcerpt";
 import { ContactCta } from "@/components/home/ContactCta";
 import { FeaturedWork } from "@/components/home/FeaturedWork";
 import { Hero } from "@/components/home/Hero";
 import { InstagramGrid } from "@/components/home/InstagramGrid";
 import { KitTeaser } from "@/components/home/KitTeaser";
+import { Reveal } from "@/components/home/Reveal";
 import { Whereabouts } from "@/components/home/Whereabouts";
 import { content } from "@/content";
 import { getElfsightInstagramId } from "@/lib/elfsight";
@@ -37,11 +37,14 @@ export default async function Home() {
     getYoutubeFeed({
       channelId: settings.youtubeChannelId,
       youtubeUrl: settings.youtubeUrl,
-      limit: settings.youtubeFeedCount + 1,
+      limit: settings.youtubeFeedCount + 8,
     }),
     instagramWidgetId ? Promise.resolve([]) : getInstagramPosts(),
   ]);
-  const { latest, rest: processFeed } = splitYoutubeFeedForHome(youtubeFeed);
+  const { latest, rest } = splitYoutubeFeedForHome(youtubeFeed);
+  const processFeed = rest.ok
+    ? { ok: true as const, videos: rest.videos.slice(0, settings.youtubeFeedCount) }
+    : rest;
 
   return (
     <>
@@ -53,16 +56,25 @@ export default async function Home() {
         heroPosterSrc={latest?.thumbnail ?? HERO_STILL_SRC}
         portrait={settings.portrait}
       />
-      <FeaturedWork youtubeUrl={settings.youtubeUrl} youtubeFeed={processFeed} />
-      <InstagramGrid
-        href={settings.instagramUrl}
-        posts={instagramPosts}
-        widgetId={instagramWidgetId}
-      />
-      <AboutExcerpt excerpt={settings.aboutExcerpt} />
-      <KitTeaser items={kitTeaser} />
-      <Whereabouts text={settings.whereaboutsText} />
-      <ContactCta shopUrl={settings.shopUrl} />
+      <Reveal>
+        <FeaturedWork youtubeUrl={settings.youtubeUrl} youtubeFeed={processFeed} />
+      </Reveal>
+      <Reveal>
+        <InstagramGrid
+          href={settings.instagramUrl}
+          posts={instagramPosts}
+          widgetId={instagramWidgetId}
+        />
+      </Reveal>
+      <Reveal>
+        <KitTeaser items={kitTeaser} />
+      </Reveal>
+      <Reveal>
+        <Whereabouts text={settings.whereaboutsText} />
+      </Reveal>
+      <Reveal>
+        <ContactCta shopUrl={settings.shopUrl} />
+      </Reveal>
     </>
   );
 }

@@ -18,8 +18,7 @@ export default function PrivacidadPage() {
           política genérica de 40 páginas.
         </p>
         <p>
-          Qué se recoge: nombre, email, organización, tipo de proyecto, fechas y
-          mensaje.
+          Qué se recoge: nombre, email y mensaje.
         </p>
         <p>
           Para qué: los datos solo se usan para responder a tu consulta. No se

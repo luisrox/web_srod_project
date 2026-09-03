@@ -68,7 +68,7 @@ describe("Header", () => {
       "href",
       "/kit",
     );
-    expect(screen.getByRole("link", { name: "Sobre" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Sobre Srod" })).toHaveAttribute(
       "href",
       "/sobre",
     );

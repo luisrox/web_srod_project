@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 
 import { GalleryBox } from "@/components/GalleryBox";
+import { Reveal } from "@/components/home/Reveal";
 import type { KitItem } from "@/domain/schemas";
 
 type KitListProps = {
@@ -45,25 +46,27 @@ export function KitList({ items }: KitListProps) {
     <ul data-ui="kit-list" className="space-y-10">
       {ordered.map((item) => (
         <li key={item.id} data-id={item.id} data-ui="kit-item">
-          <KitCardShell item={item}>
-            <GalleryBox className="overflow-hidden">
-              {item.photo ? (
-                <Image
-                  src={item.photo}
-                  alt=""
-                  width={1200}
-                  height={800}
-                  className="w-full object-cover"
-                />
-              ) : null}
-              <div className="px-8 py-6">
-                <h2 className="font-display text-2xl font-medium tracking-tight">
-                  {item.name}
-                </h2>
-                <p className="mt-2 max-w-prose text-muted">{item.usageNote}</p>
-              </div>
-            </GalleryBox>
-          </KitCardShell>
+          <Reveal>
+            <KitCardShell item={item}>
+              <GalleryBox className="overflow-hidden">
+                {item.photo ? (
+                  <Image
+                    src={item.photo}
+                    alt=""
+                    width={1200}
+                    height={800}
+                    className="h-[56vh] w-full object-cover"
+                  />
+                ) : null}
+                <div className="px-8 py-6">
+                  <h2 className="font-display text-2xl font-medium tracking-tight">
+                    {item.name}
+                  </h2>
+                  <p className="mt-2 max-w-prose text-muted">{item.usageNote}</p>
+                </div>
+              </GalleryBox>
+            </KitCardShell>
+          </Reveal>
         </li>
       ))}
     </ul>

@@ -3,28 +3,8 @@
 import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useSyncExternalStore } from "react";
 
-import { fadeVariants, prefersReducedMotion } from "@/lib/motion";
-
-const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribe(onStoreChange: () => void) {
-  if (!window.matchMedia) {
-    return () => undefined;
-  }
-  const media = window.matchMedia(REDUCE_QUERY);
-  media.addEventListener("change", onStoreChange);
-  return () => media.removeEventListener("change", onStoreChange);
-}
-
-function usePrefersReducedMotion() {
-  return useSyncExternalStore(
-    subscribe,
-    () => prefersReducedMotion(),
-    () => false,
-  );
-}
+import { fadeVariants, usePrefersReducedMotion } from "@/lib/motion";
 
 export function RouteFade({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "/";

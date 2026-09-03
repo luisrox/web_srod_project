@@ -16,9 +16,6 @@ export function formatContactBody(
   return [
     `Nombre: ${fields.nombre}`,
     `Email: ${fields.email}`,
-    `Organización: ${fields.organizacion || "—"}`,
-    `Tipo de proyecto: ${fields.tipoProyecto || "—"}`,
-    `Fechas: ${fields.fechas || "—"}`,
     "",
     "Mensaje:",
     fields.mensaje,
@@ -42,6 +39,11 @@ export async function sendContactEmail(input: ContactEmailInput): Promise<void> 
   });
 
   if (error) {
-    throw new Error("resend_failed");
+    console.error("[contacto] resend", error);
+    const detail =
+      typeof error.message === "string" && error.message.trim()
+        ? error.message
+        : "resend_failed";
+    throw new Error(detail);
   }
 }

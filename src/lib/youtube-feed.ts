@@ -14,7 +14,16 @@ export type YoutubeFeedResult =
 export const YOUTUBE_FEED_REVALIDATE_SECONDS = 3600;
 export const YOUTUBE_CHANNEL_ID_PATTERN = /^UC[A-Za-z0-9_-]{22}$/;
 
-/** El más reciente va al hero; el resto, a Trabajo destacado. */
+/** RSS trae `hqdefault` (480px). El hero necesita el frame 16:9 nítido. */
+export function youtubePosterUrl(videoId: string): string {
+  return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+}
+
+/** El más reciente en horizontal va al hero; Shorts y el resto, a Trabajo destacado. */
+export function isYoutubeShort(video: YoutubeVideo): boolean {
+  return /\/shorts\//i.test(video.url);
+}
+
 export function splitYoutubeFeedForHome(feed: YoutubeFeedResult): {
   latest: YoutubeVideo | undefined;
   rest: YoutubeFeedResult;
@@ -23,7 +32,14 @@ export function splitYoutubeFeedForHome(feed: YoutubeFeedResult): {
     return { latest: undefined, rest: feed };
   }
 
-  const [latest, ...rest] = feed.videos;
+  const latestIndex = feed.videos.findIndex((video) => !isYoutubeShort(video));
+  if (latestIndex < 0) {
+    const [latest, ...rest] = feed.videos;
+    return { latest, rest: { ok: true, videos: rest } };
+  }
+
+  const latest = feed.videos[latestIndex];
+  const rest = feed.videos.filter((_, index) => index !== latestIndex);
   return { latest, rest: { ok: true, videos: rest } };
 }
 
@@ -88,9 +104,7 @@ export function parseYoutubeRss(xml: string): YoutubeVideo[] {
     const url =
       matchGroup(entry, /<link[^>]*href="([^"]+)"/i) ??
       `https://www.youtube.com/watch?v=${id}`;
-    const thumbnail =
-      matchGroup(entry, /<media:thumbnail[^>]*url="([^"]+)"/i) ??
-      `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    const thumbnail = youtubePosterUrl(id);
     const description =
       matchGroup(
         entry,

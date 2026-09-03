@@ -28,9 +28,6 @@ const { resetContactRateLimit } = await import("@/lib/rate-limit");
 const validBody = {
   nombre: "Ada",
   email: "ada@example.com",
-  organizacion: "Casa Textil",
-  tipoProyecto: "Lookbook",
-  fechas: "octubre",
   mensaje: "Hay un brief.",
   empresa_url: "",
   turnstileToken: "tok_ok",
@@ -95,6 +92,9 @@ describe("POST /api/contacto", () => {
   it("Turnstile ausente o rechazado no llama a Resend", async () => {
     const missing = await post({ ...validBody, turnstileToken: "" });
     expect(missing.status).toBe(400);
+    await expect(missing.json()).resolves.toMatchObject({
+      error: "Confirma que no eres un robot.",
+    });
     expect(sendContactEmail).not.toHaveBeenCalled();
 
     verifyTurnstile.mockResolvedValueOnce(false);
@@ -122,9 +122,6 @@ describe("POST /api/contacto", () => {
       fields: {
         nombre: validBody.nombre,
         email: validBody.email,
-        organizacion: validBody.organizacion,
-        tipoProyecto: validBody.tipoProyecto,
-        fechas: validBody.fechas,
         mensaje: validBody.mensaje,
       },
     });
@@ -151,7 +148,10 @@ describe("POST /api/contacto", () => {
     const response = await post(validBody);
 
     expect(response.status).toBe(503);
-    await expect(response.json()).resolves.toMatchObject({ ok: false });
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/RESEND_/),
+    });
     expect(sendContactEmail).not.toHaveBeenCalled();
   });
 

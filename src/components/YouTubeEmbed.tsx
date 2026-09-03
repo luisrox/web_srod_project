@@ -12,6 +12,7 @@ export const youtubeEmbedPropsSchema = z.strictObject({
   posterSrc: z.string().min(1),
   posterWidth: z.int().positive().default(480),
   posterHeight: z.int().positive().default(270),
+  priority: z.boolean().default(false),
 });
 
 export type YouTubeEmbedProps = z.input<typeof youtubeEmbedPropsSchema>;
@@ -54,17 +55,19 @@ export function YouTubeEmbed(props: YouTubeEmbedProps) {
           <Image
             src={parsed.posterSrc}
             alt=""
-            width={parsed.posterWidth}
-            height={parsed.posterHeight}
-            className="absolute inset-0 h-full w-full object-cover"
+            fill
+            sizes="(min-width: 56rem) 56rem, 100vw"
+            priority={parsed.priority}
+            className="object-cover"
           />
           <button
             type="button"
+            aria-label={`Reproducir ${parsed.title}`}
             className="absolute inset-0 flex items-center justify-center bg-ink/20"
             onClick={() => setPlaying(true)}
           >
             <span className="inline-flex min-h-11 items-center rounded-gallery bg-accent px-4 text-sm font-medium text-accent-ink">
-              {`Reproducir ${parsed.title}`}
+              Reproducir
             </span>
           </button>
         </>

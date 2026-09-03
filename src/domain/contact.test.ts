@@ -27,15 +27,32 @@ describe("contactFieldsSchema", () => {
     const parsed = contactFieldsSchema.parse({
       nombre: "Ada",
       email: "ada@example.com",
-      organizacion: "Casa Textil",
-      tipoProyecto: "Lookbook",
-      fechas: "octubre",
       mensaje: "Hay un brief.",
       turnstileToken: "tok",
     });
 
     expect(parsed.email).toBe("ada@example.com");
-    expect(parsed.organizacion).toBe("Casa Textil");
+    expect(parsed.mensaje).toBe("Hay un brief.");
+    expect(parsed).not.toHaveProperty("organizacion");
+  });
+
+  it("ignora organización, tipo y fechas si vienen en el payload", () => {
+    const parsed = contactFieldsSchema.parse({
+      nombre: "Ada",
+      email: "ada@example.com",
+      mensaje: "Hay un brief.",
+      turnstileToken: "tok",
+      organizacion: "Casa Textil",
+      tipoProyecto: "Lookbook",
+      fechas: "octubre",
+    });
+
+    expect(parsed).toEqual({
+      nombre: "Ada",
+      email: "ada@example.com",
+      mensaje: "Hay un brief.",
+      turnstileToken: "tok",
+    });
   });
 });
 

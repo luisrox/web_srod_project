@@ -16,6 +16,10 @@ function clientIp(request: Request): string {
   return request.headers.get("x-real-ip") ?? "unknown";
 }
 
+function asText(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
 async function readBody(request: Request): Promise<RawBody | null> {
   const type = request.headers.get("content-type") ?? "";
 
@@ -25,16 +29,22 @@ async function readBody(request: Request): Promise<RawBody | null> {
       if (!json || typeof json !== "object") {
         return null;
       }
-      return json as RawBody;
+      const raw = json as RawBody;
+      return {
+        nombre: asText(raw.nombre),
+        email: asText(raw.email),
+        mensaje: asText(raw.mensaje),
+        empresa_url: asText(raw.empresa_url),
+        turnstileToken: asText(
+          raw.turnstileToken ?? raw["cf-turnstile-response"],
+        ),
+      };
     }
 
     const form = await request.formData();
     return {
       nombre: String(form.get("nombre") ?? ""),
       email: String(form.get("email") ?? ""),
-      organizacion: String(form.get("organizacion") ?? ""),
-      tipoProyecto: String(form.get("tipoProyecto") ?? ""),
-      fechas: String(form.get("fechas") ?? ""),
       mensaje: String(form.get("mensaje") ?? ""),
       empresa_url: String(form.get("empresa_url") ?? ""),
       turnstileToken: String(
@@ -60,15 +70,14 @@ export async function POST(request: Request) {
     });
   }
 
-  const configured =
-    Boolean(process.env.RESEND_API_KEY) &&
-    Boolean(process.env.RESEND_FROM) &&
-    Boolean(process.env.TURNSTILE_SECRET_KEY);
+  const mailReady =
+    Boolean(process.env.RESEND_API_KEY) && Boolean(process.env.RESEND_FROM);
 
-  if (!configured && process.env.NODE_ENV === "development") {
+  if (!mailReady) {
     return json(503, {
       ok: false,
-      error: "El formulario no envía en desarrollo: faltan claves en el entorno.",
+      error:
+        "El correo no está configurado en este entorno. Añade RESEND_API_KEY y RESEND_FROM en .env.local.",
     });
   }
 
@@ -88,13 +97,17 @@ export async function POST(request: Request) {
 
   const { turnstileToken, ...fields } = parsed.data;
   const secret = process.env.TURNSTILE_SECRET_KEY ?? "";
-  const turnstileOk = await verifyTurnstile(turnstileToken, secret, ip);
-
-  if (!turnstileOk) {
-    return json(403, {
-      ok: false,
-      error: "No se pudo verificar el anti-spam.",
-    });
+  if (secret) {
+    if (!turnstileToken) {
+      return json(400, { ok: false, error: "Confirma que no eres un robot." });
+    }
+    const turnstileOk = await verifyTurnstile(turnstileToken, secret, ip);
+    if (!turnstileOk) {
+      return json(403, {
+        ok: false,
+        error: "No se pudo verificar el anti-spam.",
+      });
+    }
   }
 
   const settings = await content.getSiteSettings();
@@ -113,7 +126,16 @@ export async function POST(request: Request) {
       cc: cc || undefined,
       fields,
     });
-  } catch {
+  } catch (error) {
+    console.error("[contacto] envío falló", error);
+    const detail = error instanceof Error ? error.message : "";
+    if (/not verified|invalid `?from`?|from address/i.test(detail)) {
+      return json(500, {
+        ok: false,
+        error:
+          "Resend rechazó el remitente. En .env.local pon RESEND_FROM=Resend <onboarding@resend.dev>. El destino de prueba tiene que ser el email de esa cuenta de Resend.",
+      });
+    }
     return json(500, { ok: false, error: GENERIC_ERROR });
   }
 

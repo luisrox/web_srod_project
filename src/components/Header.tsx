@@ -10,7 +10,7 @@ import { HEADER_WORDMARK } from "@/lib/site";
 const NAV_ITEMS = [
   { href: "/recomendados", label: "Recomendados" },
   { href: "/kit", label: "Kit" },
-  { href: "/sobre", label: "Sobre" },
+  { href: "/sobre", label: "Sobre Srod" },
 ] as const;
 
 function isCurrent(pathname: string, href: string) {

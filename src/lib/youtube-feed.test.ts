@@ -49,7 +49,7 @@ describe("parseYoutubeRss", () => {
     expect(videos[0]).toEqual({
       id: "aaaaaaaaaaa",
       title: "Look en Casco",
-      thumbnail: "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg",
+      thumbnail: "https://i.ytimg.com/vi/aaaaaaaaaaa/maxresdefault.jpg",
       url: "https://www.youtube.com/watch?v=aaaaaaaaaaa",
       publishedAt: "2026-01-01T12:00:00+00:00",
       description: "Look de verano en Casco Viejo.",
@@ -151,6 +151,27 @@ describe("splitYoutubeFeedForHome", () => {
       ok: true,
       videos: videos.slice(1),
     });
+  });
+
+  it("salta Shorts y pone en el hero el último video horizontal", () => {
+    const short = {
+      ...parseYoutubeRss(RSS_THREE)[0]!,
+      id: "shortShort1",
+      url: "https://www.youtube.com/shorts/shortShort1",
+    };
+    const videos = [short, ...parseYoutubeRss(RSS_THREE)];
+    const { latest, rest } = splitYoutubeFeedForHome({
+      ok: true,
+      videos,
+    });
+
+    expect(latest?.id).toBe("aaaaaaaaaaa");
+    expect(rest.ok).toBe(true);
+    expect(rest.videos.map((video) => video.id)).toEqual([
+      "shortShort1",
+      "bbbbbbbbbbb",
+      "ccccccccccc",
+    ]);
   });
 
   it("si el feed falla no inventa un destacado", () => {

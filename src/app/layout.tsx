@@ -44,6 +44,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           musicUrl={settings.musicUrl}
           extraSocials={settings.extraSocials}
           availabilityNote={settings.availabilityNote}
+          turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ""}
         >
           {children}
         </PublicChrome>

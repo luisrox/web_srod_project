@@ -12,15 +12,23 @@ vi.mock("next/image", () => ({
     alt,
     width,
     height,
+    className,
   }: {
     src: string;
     alt: string;
     width: number;
     height: number;
+    className?: string;
   }) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={src} alt={alt} width={width} height={height} />
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        className={className}
+      />
     );
   },
 }));
@@ -50,6 +58,18 @@ describe("KitList", () => {
     expect(row).not.toBeNull();
     expect(row?.querySelector("img")).toBeNull();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
+
+  it("recorta la foto a una altura de viewport para que quepa el primer bloque", async () => {
+    const items = await content.getKitItems();
+    const withPhoto = items.find((item) => item.photo);
+    expect(withPhoto).toBeDefined();
+
+    render(<KitList items={[withPhoto!]} />);
+
+    expect(
+      document.querySelector(`[data-id="${withPhoto!.id}"] img`),
+    ).toHaveClass("h-[56vh]", "object-cover");
   });
 
   it("muestra el nombre y la nota de cada pieza", async () => {

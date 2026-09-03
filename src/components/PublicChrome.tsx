@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { ContactModal } from "@/components/contact/ContactModal";
+import { ContactModalProvider } from "@/components/contact/ContactModalContext";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { SkipLink } from "@/components/SkipLink";
@@ -20,6 +21,7 @@ type PublicChromeProps = {
   musicUrl?: string;
   extraSocials?: ExtraSocial[];
   availabilityNote?: string;
+  turnstileSiteKey?: string;
 };
 
 export function PublicChrome({
@@ -31,6 +33,7 @@ export function PublicChrome({
   musicUrl,
   extraSocials,
   availabilityNote,
+  turnstileSiteKey = "",
 }: PublicChromeProps) {
   const pathname = usePathname() ?? "/";
   const [contactOpen, setContactOpen] = useState(false);
@@ -41,35 +44,37 @@ export function PublicChrome({
   }
 
   return (
-    <StudioShell>
-      <SkipLink />
-      <Header
-        youtubeUrl={youtubeUrl}
-        instagramUrl={instagramUrl}
-        extraSocials={extraSocials}
-        contactOpen={contactOpen}
-        onOpenContact={() => setContactOpen(true)}
-      />
-      <main id="contenido" className="flex-1">
-        {children}
-      </main>
-      <Footer
-        youtubeUrl={youtubeUrl}
-        instagramUrl={instagramUrl}
-        shopUrl={shopUrl}
-        musicUrl={musicUrl}
-        extraSocials={extraSocials}
-      />
-      <ContactModal
-        open={contactOpen}
-        onClose={closeContact}
-        contactEmail={contactEmail}
-        youtubeUrl={youtubeUrl}
-        instagramUrl={instagramUrl}
-        extraSocials={extraSocials}
-        availabilityNote={availabilityNote}
-        turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ""}
-      />
-    </StudioShell>
+    <ContactModalProvider onOpen={() => setContactOpen(true)}>
+      <StudioShell>
+        <SkipLink />
+        <Header
+          youtubeUrl={youtubeUrl}
+          instagramUrl={instagramUrl}
+          extraSocials={extraSocials}
+          contactOpen={contactOpen}
+          onOpenContact={() => setContactOpen(true)}
+        />
+        <main id="contenido" className="flex-1">
+          {children}
+        </main>
+        <Footer
+          youtubeUrl={youtubeUrl}
+          instagramUrl={instagramUrl}
+          shopUrl={shopUrl}
+          musicUrl={musicUrl}
+          extraSocials={extraSocials}
+        />
+        <ContactModal
+          open={contactOpen}
+          onClose={closeContact}
+          contactEmail={contactEmail}
+          youtubeUrl={youtubeUrl}
+          instagramUrl={instagramUrl}
+          extraSocials={extraSocials}
+          availabilityNote={availabilityNote}
+          turnstileSiteKey={turnstileSiteKey}
+        />
+      </StudioShell>
+    </ContactModalProvider>
   );
 }

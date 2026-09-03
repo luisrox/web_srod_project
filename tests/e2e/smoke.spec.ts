@@ -86,6 +86,19 @@ test.describe("humo: mapa de rutas de fase 1", () => {
     await expect(dialog).toHaveCount(0);
   });
 
+  test("el CTA de Home abre el modal de contacto", async ({ page }) => {
+    await page.goto("/");
+
+    await page
+      .locator('[data-ui="contact-cta"]')
+      .getByRole("button", { name: "Contacto" })
+      .click();
+
+    const dialog = page.getByRole("dialog", { name: "Contacto" });
+    await expect(dialog).toBeVisible();
+    await expect(page).toHaveURL(/\/?$/);
+  });
+
   test("Home Instagram es plan B o grid y el header sigue al perfil", async ({
     page,
   }) => {

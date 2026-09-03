@@ -45,16 +45,10 @@ describe("ContactForm", () => {
     expect(screen.getByLabelText("Nombre")).toHaveAttribute("name", "nombre");
     expect(screen.getByLabelText("Email")).toHaveAttribute("type", "email");
     expect(screen.getByLabelText("Email")).toHaveAttribute("name", "email");
-    expect(screen.getByLabelText("Organización")).toHaveAttribute(
-      "name",
-      "organizacion",
-    );
-    expect(screen.getByLabelText("Tipo de proyecto")).toHaveAttribute(
-      "name",
-      "tipoProyecto",
-    );
-    expect(screen.getByLabelText("Fechas")).toHaveAttribute("name", "fechas");
     expect(screen.getByLabelText("Mensaje")).toHaveAttribute("name", "mensaje");
+    expect(screen.queryByLabelText("Organización")).toBeNull();
+    expect(screen.queryByLabelText("Tipo de proyecto")).toBeNull();
+    expect(screen.queryByLabelText("Fechas")).toBeNull();
     expect(screen.getByRole("button", { name: "Enviar" })).toHaveAttribute(
       "type",
       "submit",

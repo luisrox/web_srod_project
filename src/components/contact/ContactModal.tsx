@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { ContactAside } from "@/components/contact/ContactAside";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { GalleryBox } from "@/components/GalleryBox";
 import type { ExtraSocial } from "@/domain/schemas";
+import { prefersReducedMotion } from "@/lib/motion";
+
+const LEAVE_MS = 280;
 
 type ContactModalProps = {
   open: boolean;
@@ -30,6 +33,29 @@ export function ContactModal({
 }: ContactModalProps) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [present, setPresent] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setPresent(true);
+      return;
+    }
+
+    if (!present) {
+      return;
+    }
+
+    if (prefersReducedMotion()) {
+      setPresent(false);
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setPresent(false);
+    }, LEAVE_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [open, present]);
 
   useEffect(() => {
     if (!open) {
@@ -58,61 +84,66 @@ export function ContactModal({
     };
   }, [open, onClose]);
 
-  if (!open) {
+  if (!present) {
     return null;
   }
 
   return (
     <div
       data-ui="contact-modal"
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-4 py-10 sm:items-center"
+      data-leaving={open ? undefined : true}
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-5 py-12 sm:px-8 sm:py-16"
     >
       <button
         type="button"
-        className="absolute inset-0 bg-bg/75"
+        data-ui="contact-modal-backdrop"
+        className="absolute inset-0 bg-bg/90 backdrop-blur-md"
         aria-label="Cerrar"
         onClick={onClose}
       />
-      <GalleryBox className="relative z-10 w-full max-w-3xl overflow-hidden">
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          className="px-6 py-6 sm:px-8"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <h2
-              id={titleId}
-              className="font-display text-2xl font-medium tracking-tight"
-            >
-              Contacto
-            </h2>
-            <button
-              ref={closeRef}
-              type="button"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-gallery text-sm font-medium hover:text-accent"
-              onClick={onClose}
-            >
-              Cerrar
-            </button>
-          </div>
-          <div className="mt-6 flex flex-col gap-10 md:flex-row md:gap-12">
-            <div className="min-w-0 flex-1">
-              <ContactForm
-                idPrefix="modal-"
-                turnstileSiteKey={turnstileSiteKey}
+      <div data-ui="contact-modal-panel" className="relative z-10 my-auto w-full max-w-3xl">
+        <GalleryBox>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            className="px-6 py-6 sm:px-8"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-line pb-4">
+              <h2
+                id={titleId}
+                className="font-display text-2xl font-medium tracking-tight"
+              >
+                Contacto
+              </h2>
+              <button
+                ref={closeRef}
+                type="button"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-gallery text-sm font-medium hover:text-accent"
+                onClick={onClose}
+              >
+                Cerrar
+              </button>
+            </div>
+            <div className="mt-6 flex flex-col gap-10 md:flex-row md:gap-12">
+              <div className="min-w-0 flex-1">
+                <ContactForm
+                  idPrefix="modal-"
+                  turnstileSiteKey={turnstileSiteKey}
+                  active={open}
+                />
+              </div>
+              <ContactAside
+                contactEmail={contactEmail}
+                youtubeUrl={youtubeUrl}
+                instagramUrl={instagramUrl}
+                extraSocials={extraSocials}
+                availabilityNote={availabilityNote}
               />
             </div>
-            <ContactAside
-              contactEmail={contactEmail}
-              youtubeUrl={youtubeUrl}
-              instagramUrl={instagramUrl}
-              extraSocials={extraSocials}
-              availabilityNote={availabilityNote}
-            />
           </div>
-        </div>
-      </GalleryBox>
+        </GalleryBox>
+      </div>
     </div>
   );
 }

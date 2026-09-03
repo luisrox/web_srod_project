@@ -50,8 +50,7 @@ export function Hero({
               videoId={heroYoutubeVideoId}
               title={heroVideoTitle}
               posterSrc={heroPosterSrc}
-              posterWidth={1600}
-              posterHeight={900}
+              priority
             />
           </HeroParallax>
         </div>

@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from "react";
+
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 
 export function prefersReducedMotion(
@@ -7,6 +9,23 @@ export function prefersReducedMotion(
     return false;
   }
   return media.matchMedia(REDUCE_QUERY).matches;
+}
+
+function subscribeReducedMotion(onStoreChange: () => void) {
+  if (typeof window === "undefined" || !window.matchMedia) {
+    return () => undefined;
+  }
+  const media = window.matchMedia(REDUCE_QUERY);
+  media.addEventListener("change", onStoreChange);
+  return () => media.removeEventListener("change", onStoreChange);
+}
+
+export function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => prefersReducedMotion(),
+    () => false,
+  );
 }
 
 export function fadeTransition(reduce: boolean) {

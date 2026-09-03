@@ -21,9 +21,6 @@ describe("sendContactEmail", () => {
     const fields = {
       nombre: "Ada",
       email: "ada@example.com",
-      organizacion: "Casa Textil",
-      tipoProyecto: "Lookbook",
-      fechas: "octubre",
       mensaje: "Hay un brief.",
     };
 
@@ -48,8 +45,9 @@ describe("sendContactEmail", () => {
     expect(payload.cc).toEqual(["luis@example.com"]);
     expect(payload.subject).toMatch(/Consulta desde la web/);
     expect(payload.text).toBe(formatContactBody(fields));
-    expect(payload.text).toContain("Casa Textil");
+    expect(payload.text).toContain("ada@example.com");
     expect(payload.text).toContain("Hay un brief.");
+    expect(payload.text).not.toContain("Organización");
   });
 
   it("lanza si Resend devuelve error", async () => {
@@ -63,12 +61,9 @@ describe("sendContactEmail", () => {
         fields: {
           nombre: "Ada",
           email: "ada@example.com",
-          organizacion: "",
-          tipoProyecto: "",
-          fechas: "",
           mensaje: "Hola",
         },
       }),
-    ).rejects.toThrow("resend_failed");
+    ).rejects.toThrow("boom");
   });
 });

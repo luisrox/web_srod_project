@@ -54,11 +54,11 @@ export function TextLink({ href, children, className }: AppLinkProps) {
   );
 }
 
+export const buttonLinkClass =
+  "inline-flex min-h-11 items-center justify-center rounded-gallery bg-accent px-4 text-sm font-medium text-accent-ink hover:opacity-90";
+
 export function ButtonLink({ href, children, className }: AppLinkProps) {
-  const classes = mergeClass(
-    "inline-flex min-h-11 items-center justify-center rounded-gallery bg-accent px-4 text-sm font-medium text-accent-ink hover:opacity-90",
-    className,
-  );
+  const classes = mergeClass(buttonLinkClass, className);
 
   if (isHttpUrl(href)) {
     return (
